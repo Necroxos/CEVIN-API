@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- JS -->
+    <script src="./libs/js/jquery-3.4.1.min.js"></script>
+    <script src="./libs/js/popper.min.js"></script>
+    <script src="./libs/js/bootstrap.min.js"></script>
+    <!-- CSS -->
+    <link href="./libs/css/bootstrap.min.css" rel="stylesheet"></link>
+    <title>Express Server</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Hola desde typesript</h1>
+        <button type="button" class="btn btn-info" id="button">Exports</button>
+    </div>
+</body>
+<script>
+    $("button").click(function() {
+        $.get("https://chilecube.datachile.io//cubes/exports/aggregate.json?drilldown[]=[Geography].[Geography].[Region]&drilldown[]=[Date].[Date].[Year]&cut[]=[Geography].[Region].Coquimbo&measures[]=FOB%20US&nonempty=true&distinct=false&parents=true&sparse=true",
+            function(data, status) {
+                console.log("Status: " + status);
+                console.log(data);
+            });
+    });
+</script>
+
+</html>
