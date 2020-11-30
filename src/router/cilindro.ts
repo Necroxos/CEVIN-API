@@ -7,17 +7,17 @@ const { verificaToken, verificaAdminRole } = require('../middleware/autenticacio
 const cilindro = require('./app');
 
 /**
- * Realizamos la petición GET para obtener un [Activo.Cilindro] en base a su [codigo_activo]
+ * Realizamos la petición GET para OBTENER UN [Activo.Cilindro] en base a su [codigo_activo]
  * También se utiliza el middleware para verificar que el token que se utiliza es válido
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo cnxn en la carpeta database
+ * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo en el archivo CNXN en la carpeta DATABASE
  */
 cilindro.get('/cilindro/:code', [ verificaToken ], async (req: any, res: any) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
 
-    let code = req.params.code;
+    const code = req.params.code;
     await pool.request()
         .input('codigo', sql.NVarChar, code)
         .execute('SelectCilindro')
@@ -37,10 +37,10 @@ cilindro.get('/cilindro/:code', [ verificaToken ], async (req: any, res: any) =>
 });
 
 /**
- * Se realiza la petición GET que retorne todos los activos en la base de datos
+ * Se realiza la petición GET para OBTENER TODOS los activos en la base de datos
  * También se utiliza el middleware para verificar que el token que se utiliza es válido
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo cnxn en la carpeta database
+ * De caso contrario hay varios mensajes de error que se pueden encontrar en el en el archivo CNXN en la carpeta DATABASE
  */
 cilindro.get('/cilindros', [ verificaToken ], async (req: any, res: any) => {
 
@@ -59,10 +59,10 @@ cilindro.get('/cilindros', [ verificaToken ], async (req: any, res: any) => {
 });
 
 /**
- * Se realiza una petición POST para ingresar un nuevo cilindro
+ * Se realiza una petición POST para INGRESAR un nuevo cilindro
  * También se utiliza el middleware para verificar que el token que se utiliza es válido
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto ingresado } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo cnxn en la carpeta database
+ * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
  * Se ingresa a la base de datos llamando al procedimiento almacenado [InsertCilindro]
  * El objeto debe contener los campos de
  * { metros_cubicos: int, codigo_activo: nvarchar(MAX), tipo_id: int, fecha_mantencion: nvarchar(30), desc_mantenimiento: nvarhcar(30) }
@@ -96,5 +96,79 @@ cilindro.post('/cilindro', [ verificaToken ], async (req: any, res: any) => {
 
 });
 
+/**
+ * Se realiza una petición PUT para ACTUALIZAR un nuevo cilindro
+ * También se utiliza el middleware para verificar que el token que se utiliza es válido
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
+ * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
+ * Se ingresa a la base de datos llamando al procedimiento almacenado [InsertCilindro]
+ * El objeto debe contener los campos de
+ * { cilindro_id: int, metros_cubicos: int, codigo_activo: nvarchar(MAX), tipo_id: int, fecha_mantencion: nvarchar(30), desc_mantenimiento: nvarhcar(30) }
+ */
+cilindro.put('/cilindro', [ verificaToken ], async (req: any, res: any) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    await pool.request()
+        .input('id', sql.Int, req.body.cilindro_id)
+        .input('capacidad', sql.Int, req.body.metros_cubicos)
+        .input('codigo', sql.NVarChar, req.body.codigo_activo)
+        .input('tipo_id', sql.Int, req.body.tipo_id)
+        .input('fecha_mantencion', sql.NVarChar, req.body.fecha_mantencion)
+        .input('desc_mantencion', sql.NVarChar, req.body.desc_mantenimiento || null)
+        .execute('UpdateCilindro')
+        .then((result: any) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Actualización correcta',
+                response: {
+                    capacidad: req.body.metros_cubicos + ' metros cúbicos',
+                    codigo: req.body.codigo,
+                    ult_mantenimiento: req.body.fecha_mantencion
+                }
+            });
+        })
+        .catch((err: any) => checkError(err, res));
+
+    pool.close();
+
+});
+
+/**
+ * Se realiza una petición DELETE para DESACTIVAR o ACTIVAR un usuario de la base de datos
+ * También se utiliza el middleware para verificar que el token que se utiliza es válido
+ * Y se verifica que sólo los administradores pueden realizar esta función
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
+ * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
+ * Se ingresa a la base de datos llamando al procedimiento almacenado [InsertCilindro]
+ * El objeto debe contener los campos de
+ * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(), nombres: nvarchar(30), apellidos: nvarhcar(30),
+ *   password: nvarchar(MAX), rol_id: int }
+ */
+cilindro.put('/cambio-estado/cilindro', [verificaToken, verificaAdminRole], async (req: any, res: any) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+    /** validaciones */
+
+
+    /** Stored Procedure: Return */
+    await pool.request()
+        .input('activo', sql.Bit, req.body.activo)
+        .input('id', sql.Int, req.body.cilindro_id)
+        .execute('ToggleStatusCilindro')
+        .then((result: any) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Cambio de estado',
+                response: { activo: !!Number(req.body.activo) }
+            });
+        })
+        .catch((err: any) => checkError(err, res));
+
+    pool.close();
+
+});
 
 export default cilindro;

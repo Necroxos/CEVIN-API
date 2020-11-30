@@ -62,7 +62,7 @@ rol.put('/rol', [ verificaToken ], async (req: any, res: any) => {
 
 });
 
-rol.delete('/rol', [ verificaToken, verificaAdminRole ], async (req: any, res: any) => {
+rol.put('/cambio-estado/rol', [ verificaToken, verificaAdminRole ], async (req: any, res: any) => {
 
     let pool = await connect();
     if (!pool) return res.status(403);
