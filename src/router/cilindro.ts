@@ -5,6 +5,7 @@ const { connect, sql, checkError, errorBD, errorRespuesta } = require('../databa
 const { verificaToken, verificaAdminRole } = require('../middleware/autenticacion');
 // Inicializa express con las dependencias necesarias
 const cilindro = require('./app');
+const _ = require('underscore');
 
 /**
  * Realizamos la petición GET para OBTENER UN [Activo.Cilindro] en base a su [codigo_activo]
@@ -12,7 +13,7 @@ const cilindro = require('./app');
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo en el archivo CNXN en la carpeta DATABASE
  */
-cilindro.get('/cilindro/:code', [ verificaToken ], async (req: any, res: any) => {
+cilindro.get('/cilindro/:code', [verificaToken], async (req: any, res: any) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -42,17 +43,22 @@ cilindro.get('/cilindro/:code', [ verificaToken ], async (req: any, res: any) =>
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  * De caso contrario hay varios mensajes de error que se pueden encontrar en el en el archivo CNXN en la carpeta DATABASE
  */
-cilindro.get('/cilindros', [ verificaToken ], async (req: any, res: any) => {
+cilindro.get('/cilindros', [verificaToken], async (req: any, res: any) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
 
-    const result = await pool.request().query(`select * from [Activo.Cilindro]`);
-
-    res.json({
-        ok: true,
-        query: result.recordset
-    });
+    await pool.request()
+        .execute('SelectCilindros')
+        .then((result: any) => {
+            if (result.recordset[0]) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset
+            });
+            else errorRespuesta(res);
+        })
+        .catch((err: any) => checkError(err, res));
 
     pool.close();
 
@@ -67,10 +73,13 @@ cilindro.get('/cilindros', [ verificaToken ], async (req: any, res: any) => {
  * El objeto debe contener los campos de
  * { metros_cubicos: int, codigo_activo: nvarchar(MAX), tipo_id: int, fecha_mantencion: nvarchar(30), desc_mantenimiento: nvarhcar(30) }
  */
-cilindro.post('/cilindro', [ verificaToken ], async (req: any, res: any) => {
+cilindro.post('/cilindro', [verificaToken], async (req: any, res: any) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
+
+    let body = _.pick(req.body, ['metros_cubicos', 'codigo_activo', 'tipo_id', 'fecha_mantencion', 'desc_mantenimiento']);
+    console.log(body);
 
     await pool.request()
         .input('capacidad', sql.Int, req.body.metros_cubicos)
@@ -78,6 +87,7 @@ cilindro.post('/cilindro', [ verificaToken ], async (req: any, res: any) => {
         .input('tipo_id', sql.Int, req.body.tipo_id)
         .input('fecha_mantencion', sql.NVarChar, req.body.fecha_mantencion)
         .input('desc_mantencion', sql.NVarChar, req.body.desc_mantenimiento || null)
+        .input('propietario_id', sql.NVarChar, req.body.propietario_id)
         .execute('InsertCilindro')
         .then((result: any) => {
             if (result) res.json({
@@ -105,7 +115,7 @@ cilindro.post('/cilindro', [ verificaToken ], async (req: any, res: any) => {
  * El objeto debe contener los campos de
  * { cilindro_id: int, metros_cubicos: int, codigo_activo: nvarchar(MAX), tipo_id: int, fecha_mantencion: nvarchar(30), desc_mantenimiento: nvarhcar(30) }
  */
-cilindro.put('/cilindro', [ verificaToken ], async (req: any, res: any) => {
+cilindro.put('/cilindro', [verificaToken], async (req: any, res: any) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);

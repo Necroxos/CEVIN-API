@@ -8,7 +8,6 @@ const admin = require('./app');
 // Módulo para encriptar la contraseña
 const bycrpt = require('bcrypt');
 
-
 /**
  * Se realiza una petición POST para INGRESAR el PRIMER usuario
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto ingresado } }
@@ -18,28 +17,25 @@ const bycrpt = require('bcrypt');
  * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(), nombres: nvarchar(30), apellidos: nvarhcar(30),
  *   password: nvarchar(MAX), rol_id: int }
  */
-admin.post('/primer-admin', async (req: any, res: any) => {
+admin.get('/primer-admin', async (req: any, res: any) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
 
     await pool.request()
-        .input('dni', sql.NVarChar, req.body.dni)
-        .input('dv', sql.NVarChar, req.body.dv)
-        .input('email', sql.NVarChar, req.body.email)
-        .input('nombres', sql.NVarChar, req.body.nombres)
-        .input('apellidos', sql.NVarChar, req.body.apellidos)
-        .input('password', sql.NVarChar, bycrpt.hashSync(req.body.password, 10))
-        .input('rol', sql.Int, 1)
+        .input('dni', sql.NVarChar, '18372498')
+        .input('dv', sql.NVarChar, '3')
+        .input('email', sql.NVarChar, 'rdoratm@gmail.com')
+        .input('nombres', sql.NVarChar, 'Rodrigo Isaías')
+        .input('apellidos', sql.NVarChar, 'Dorat Merejo')
+        .input('password', sql.NVarChar, bycrpt.hashSync('123456', 10))
         .execute('InsertAdmin')
         .then((result: any) => {
             if (result.rowsAffected.length !== 0) res.json({
                 ok: true,
                 message: 'Inserción correcta',
                 response: {
-                    nombre: req.body.nombres + ' ' + req.body.apellidos,
-                    rut: req.body.dni + '-' + req.body.dv,
-                    email: req.body.email
+                    message: 'Primer usuario generado!'
                 }
             });
             else res.status(403).json({
@@ -51,40 +47,6 @@ admin.post('/primer-admin', async (req: any, res: any) => {
             });
         })
         .catch((err: any) => checkError(err, res));
-
-    pool.close();
-
-});
-
-/**
- * Realizamos la petición GET para OBTENER TODOS los usuarios de [Usuario.Info] que sean ADMIN o SUPER_ADMIN
- * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
- */
-admin.get('/primer-admin', async (req: any, res: any) => {
-
-    let pool = await connect();
-    if (!pool) return errorBD(res);
-
-    const existenAdmins = await pool.request().query(`SELECT * FROM [Usuario.Info] WHERE rol_id = 1 OR rol_id = 2`);
-
-    if (existenAdmins.recordset.length === 0) {
-        res.json({
-            ok: true,
-            message: 'No existen administradores',
-            response: {
-                result: `Se puede usar este link, ya que no existen administradores`
-            }
-        });
-    } else {
-        res.status(403).json({
-            ok: false,
-            response: 'Existen administradores',
-            err: {
-                message: `No se puede usar este link si ya hay un administrador`
-            }
-        });
-    }
 
     pool.close();
 
