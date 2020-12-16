@@ -23,7 +23,7 @@ process.env.SEED = process.env.SEED || 'secret-desarrollo';
 const config = {
     user: 'Dratt',
     password: 'zerox971123',
-    server: '192.168.0.11',
+    server: '192.168.0.9',
     database: 'Cevin_Tracking',
     port: 1433,
     options: {

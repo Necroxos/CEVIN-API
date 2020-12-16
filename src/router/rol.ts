@@ -12,7 +12,7 @@ rol.get('/roles', [ verificaToken ], async (req: any, res: any) => {
 
     res.json({
         ok: true,
-        query: result.recordset
+        response: result.recordset
     });
 
     pool.close();

@@ -55,7 +55,7 @@ usuario.post('/usuario', [verificaToken, verificaAdminRole], async (req: any, re
         .input('nombres', sql.NVarChar, req.body.nombres)
         .input('apellidos', sql.NVarChar, req.body.apellidos)
         .input('password', sql.NVarChar, bycrpt.hashSync(req.body.password, 10))
-        .input('rol', sql.Int, req.body.rol)
+        .input('rol_id', sql.Int, req.body.rol_id)
         .execute('InsertUsuario')
         .then((result: any) => {
             if (result) res.json({
