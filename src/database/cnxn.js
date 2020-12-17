@@ -1,5 +1,5 @@
 // Importa las configuraciones de la base de datos
-import config from './config';
+import db from './config';
 // Módulo para conectar a SQL Server
 const sql = require('mssql');
 
@@ -9,7 +9,7 @@ const sql = require('mssql');
  */
 async function connect() {
     try {
-        let pool = await sql.connect(config);
+        let pool = await sql.connect(db);
         return pool;
     } catch (err) {
         console.log('Conexión fallida', err)
@@ -22,7 +22,7 @@ async function connect() {
  * @param err Recibe el parametro de error de la función origian (petición a la base de datos)
  * @param res Recibe la respuesta original de la función para retornar
  */
-function checkError(err: any, res: any) {
+function checkError(err, res) {
     if (err.code === "EREQUEST") res.status(403).json({
         ok: false,
         response: `Proceso fallido para el procedimiento almacenado ${err.procName}`,
@@ -44,7 +44,7 @@ function checkError(err: any, res: any) {
  * Esta función manda un error en caso de que no se pueda conectar a la base de datos
  * @param res Recibe la respuesta original de la función para retornar
  */
-function errorBD(res: any) {
+function errorBD(res) {
     res.status(403).json({
         ok: false,
         response: 'Error de conexión a la base de datos',
@@ -59,7 +59,7 @@ function errorBD(res: any) {
  * Pero no se encuentra información que concuerde en la base de datos
  * @param res Recibe la respuesta original de la función para retornar
  */
-function errorRespuesta(res: any) {
+function errorRespuesta(res) {
     res.status(403).json({
         ok: false,
         response: 'Sin información en la base de datos',

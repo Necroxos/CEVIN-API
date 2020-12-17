@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config();
+
 /**
  * Entorno
  */
@@ -20,15 +23,15 @@ process.env.SEED = process.env.SEED || 'secret-desarrollo';
  * Base de Datos
  */
 
-const config = {
-    user: 'Dratt',
-    password: 'zerox971123',
-    server: '192.168.0.9',
-    database: 'Cevin_Tracking',
-    port: 1433,
+const db = {
+    user: String(process.env.DB_USER),
+    password: String(process.env.DB_PASS),
+    server: String(process.env.DB_SERVER),
+    database: String(process.env.DB_NAME),
+    port: Number(process.env.DB_PORT),
     options: {
         enableArithAbort: true
     }
 }
 
-export default config;
+export default db;

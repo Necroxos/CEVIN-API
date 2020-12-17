@@ -15,14 +15,22 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>Hola desde typesript</h1>
-        <button type="button" class="btn btn-info" id="button">Exports</button>
+    <nav class="navbar navbar-expand navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">OST API</a>
+    </nav>
+    <div class="container mt-3">
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+                <h1 class="display-4">Sobre la API</h1>
+                <p class="lead">Esta es una API para manejar videogames y sus soundtracks.</p>
+                <button type="button" class="btn btn-info" id="button">GET Inicial</button>
+            </div>
+        </div>
     </div>
 </body>
 <script>
     $("button").click(function() {
-        $.get("https://chilecube.datachile.io//cubes/exports/aggregate.json?drilldown[]=[Geography].[Geography].[Region]&drilldown[]=[Date].[Date].[Year]&cut[]=[Geography].[Region].Coquimbo&measures[]=FOB%20US&nonempty=true&distinct=false&parents=true&sparse=true",
+        $.get("http://localhost:3000/api/",
             function(data, status) {
                 console.log("Status: " + status);
                 console.log(data);

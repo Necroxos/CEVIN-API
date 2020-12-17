@@ -1,7 +1,4 @@
 const { connect, sql, checkError } = require('../database/cnxn');
-const { verificaToken, verificaAdminRole } = require('../middleware/autenticacion');
-
-const tipoGas = require('./app');
 
 /**
  * Realizamos la petición GET para OBTENER TODOS los tipo_gas de [Activo.Tipo]
@@ -9,7 +6,7 @@ const tipoGas = require('./app');
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
  */
-tipoGas.get('/gases', [ verificaToken ], async (req: any, res: any) => {
+export const obtenerTodos = async(req, res) => {
 
     let pool = await connect();
     if (!pool) return res.status(403);
@@ -23,6 +20,4 @@ tipoGas.get('/gases', [ verificaToken ], async (req: any, res: any) => {
 
     pool.close();
 
-});
-
-export default tipoGas;
+};

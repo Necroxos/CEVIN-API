@@ -7,10 +7,10 @@ const jwt = require('jsonwebtoken');
 /**
  * Verificar token
  */
-let verificaToken = (req: any, res: any, next: any) => {
+let verificaToken = (req, res, next) => {
     let token = req.get('Authorization');
 
-    jwt.verify(token, process.env.SEED, (err: any, decoded: any) => {
+    jwt.verify(token, process.env.SEED, (err, decoded) => {
         if (err) {
             return res.status(401).json({
                 ok: false,
@@ -19,7 +19,7 @@ let verificaToken = (req: any, res: any, next: any) => {
                 }
             });
         }
-        
+
         if (decoded.usuario.recordset) req.usuario = decoded.usuario.recordset[0];
         else req.usuario = decoded.usuario;
         next();
@@ -29,7 +29,7 @@ let verificaToken = (req: any, res: any, next: any) => {
 /**
  * Verifica AdminRole
  */
-let verificaAdminRole = (req: any, res: any, next: any) => {
+let verificaAdminRole = (req, res, next) => {
     let usuario = req.usuario;
     if (usuario.rol_id === 1) { // usar el id del rol de administración
         next();

@@ -1,15 +1,11 @@
 // Importaciones
 // Conexiones a la base de datos y algunos estandar de errores
 const { connect, sql, checkError, errorBD } = require('../database/cnxn');
-// Middleware para verificaciones
-const { verificaToken, verificaAdminRole } = require('../middleware/autenticacion');
-// Inicializa express con las dependencias necesarias
-const admin = require('./app');
 // Módulo para encriptar la contraseña
 const bycrpt = require('bcrypt');
 
 /**
- * Se realiza una petición POST para INGRESAR el PRIMER usuario
+ * INGRESAR el PRIMER usuario
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto ingresado } }
  * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
  * Se ingresa a la base de datos llamando al procedimiento almacenado [InsertCilindro]
@@ -17,7 +13,7 @@ const bycrpt = require('bcrypt');
  * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(), nombres: nvarchar(30), apellidos: nvarhcar(30),
  *   password: nvarchar(MAX), rol_id: int }
  */
-admin.get('/primer-admin', async (req: any, res: any) => {
+export const primerAdmin = async(req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -30,7 +26,7 @@ admin.get('/primer-admin', async (req: any, res: any) => {
         .input('apellidos', sql.NVarChar, 'Dorat Merejo')
         .input('password', sql.NVarChar, bycrpt.hashSync('123456', 10))
         .execute('InsertAdmin')
-        .then((result: any) => {
+        .then((result) => {
             if (result.rowsAffected.length !== 0) res.json({
                 ok: true,
                 message: 'Inserción correcta',
@@ -46,18 +42,18 @@ admin.get('/primer-admin', async (req: any, res: any) => {
                 }
             });
         })
-        .catch((err: any) => checkError(err, res));
+        .catch((err) => checkError(err, res));
 
     pool.close();
 
-});
+};
 
 /**
- * Realizamos la petición GET para OBTENER al usuario de [Usuario.Info] y verificar su ROL
+ * OBTENER al usuario de [Usuario.Info] y verificar su ROL
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto }
  * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
  */
-admin.get('/es-admin/:id', [verificaToken, verificaAdminRole], async (req: any, res: any) => {
+export const esAdmin = async(req, res) => {
 
     res.json({
         ok: true,
@@ -67,6 +63,4 @@ admin.get('/es-admin/:id', [verificaToken, verificaAdminRole], async (req: any, 
         }
     });
 
-});
-
-export default admin;
+};
