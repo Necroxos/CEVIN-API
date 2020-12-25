@@ -1,12 +1,17 @@
 // Conexiones a la base de datos y algunos estandar de errores
-const { connect, sql, checkError, errorBD, errorRespuesta } = require('../database/cnxn');
+const { connect, sql, checkError, errorBD, sinResultados } = require('../database/cnxn');
 // Control del body
 const _ = require('underscore');
+
+/**********************************************************************************************************************
+ * OBSERVACIONES:                                                                                                    *
+ * Hay varios mensajes de error que se pueden encontrar en el archivo en el archivo CNXN en la carpeta DATABASE      *
+ * La función execute llama a procedimientos almacenados de SQL Server (revisar scripts)                             *
+ *********************************************************************************************************************/
 
 /**
  * OBTENER UN [Activo.Cilindro] en base a su [codigo_activo]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo en el archivo CNXN en la carpeta DATABASE
  */
 export const obtenerUno = async(req, res) => {
 
@@ -23,7 +28,7 @@ export const obtenerUno = async(req, res) => {
                 message: 'Petición finalizada',
                 response: result.recordset[0]
             });
-            else errorRespuesta(res);
+            else sinResultados(res);
         })
         .catch((err) => checkError(err, res));
 
@@ -35,7 +40,6 @@ export const obtenerUno = async(req, res) => {
 /**
  * OBTENER TODOS los activos en la base de datos
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el en el archivo CNXN en la carpeta DATABASE
  */
 export const obtenerTodos = async(req, res) => {
 
@@ -45,12 +49,11 @@ export const obtenerTodos = async(req, res) => {
     await pool.request()
         .execute('SelectCilindros')
         .then((result) => {
-            if (result.recordset[0]) res.json({
+            res.json({
                 ok: true,
                 message: 'Petición finalizada',
                 response: result.recordset
             });
-            else errorRespuesta(res);
         })
         .catch((err) => checkError(err, res));
 
@@ -61,8 +64,6 @@ export const obtenerTodos = async(req, res) => {
 /**
  * INGRESAR un nuevo cilindro
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto ingresado } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
- * Se ingresa a la base de datos llamando al procedimiento almacenado [InsertCilindro]
  * El objeto debe contener los campos de
  * { metros_cubicos: int, codigo_activo: nvarchar(MAX), tipo_id: int, fecha_mantencion: nvarchar(30), desc_mantenimiento: nvarhcar(30) }
  */
@@ -102,8 +103,6 @@ export const ingresar = async(req, res) => {
 /**
  * ACTUALIZAR un nuevo cilindro
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
- * Se ingresa a la base de datos llamando al procedimiento almacenado [InsertCilindro]
  * El objeto debe contener los campos de
  * { cilindro_id: int, metros_cubicos: int, codigo_activo: nvarchar(MAX), tipo_id: int, fecha_mantencion: nvarchar(30), desc_mantenimiento: nvarhcar(30) }
  */
@@ -112,12 +111,15 @@ export const actualizar = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
+    console.log(req.body);
+
     await pool.request()
         .input('id', sql.Int, req.body.cilindro_id)
         .input('capacidad', sql.Int, req.body.metros_cubicos)
         .input('codigo', sql.NVarChar, req.body.codigo_activo)
         .input('tipo_id', sql.Int, req.body.tipo_id)
         .input('fecha_mantencion', sql.NVarChar, req.body.fecha_mantencion)
+        .input('propietario_id', sql.NVarChar, req.body.propietario_id)
         .input('desc_mantencion', sql.NVarChar, req.body.desc_mantenimiento || null)
         .execute('UpdateCilindro')
         .then((result) => {
@@ -139,10 +141,7 @@ export const actualizar = async(req, res) => {
 
 /**
  * DESACTIVAR o ACTIVAR un usuario de la base de datos
- * Y se verifica que sólo los administradores pueden realizar esta función
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
- * De caso contrario hay varios mensajes de error que se pueden encontrar en el archivo CNXN en la carpeta DATABASE
- * Se ingresa a la base de datos llamando al procedimiento almacenado [InsertCilindro]
  * El objeto debe contener los campos de
  * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(), nombres: nvarchar(30), apellidos: nvarhcar(30),
  *   password: nvarchar(MAX), rol_id: int }

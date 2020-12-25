@@ -6,7 +6,12 @@ import { verificaToken, verificaAdminRole } from '../middleware/autenticacion';
 import { Router } from 'express';
 const router = Router();
 
-// Realizamos la petición GET para OBTENER TODOS los propietarios de [Activo.Propietario]
+/**********************************************************************************************************************
+ * OBSERVACIONES:                                                                                                    *
+ * Las rutas poseen verificación (según corresponda) en base a middleware para: Token válido y privilegios de Admin  *
+ *********************************************************************************************************************/
+
+// Realizamos la petición GET para OBTENER TODOS los propietarios
 router.get('/propietarios', [verificaToken], propietarioController.obtenerTodos);
 
 export default router;

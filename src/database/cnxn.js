@@ -59,7 +59,7 @@ function errorBD(res) {
  * Pero no se encuentra información que concuerde en la base de datos
  * @param res Recibe la respuesta original de la función para retornar
  */
-function errorRespuesta(res) {
+function sinResultados(res) {
     res.status(403).json({
         ok: false,
         response: 'Sin información en la base de datos',
@@ -73,6 +73,6 @@ module.exports = {
     connect,
     checkError,
     errorBD,
-    errorRespuesta,
+    sinResultados,
     sql
 }

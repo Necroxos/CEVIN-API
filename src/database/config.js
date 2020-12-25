@@ -20,6 +20,12 @@ process.env.CADUCIDAD_TOKEN = '1d';
 process.env.SEED = process.env.SEED || 'secret-desarrollo';
 
 /**
+ * Puerto API
+ */
+
+process.env.PORT = process.env.PORT || 3000;
+
+/**
  * Base de Datos
  */
 

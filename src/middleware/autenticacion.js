@@ -1,6 +1,6 @@
 // Importaciones
 // Conexiones a la base de datos y algunos estandar de errores
-const { connect, sql, checkError, errorBD, errorRespuesta } = require('../database/cnxn');
+const { connect } = require('../database/cnxn');
 // jsonwebtoken para verficar validéz
 const jwt = require('jsonwebtoken');
 

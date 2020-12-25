@@ -7,16 +7,18 @@ import cors from 'cors';
 // Rutas
 import RolRoutes from './routes/rol.routes';
 import AdminRoutes from './routes/admin.routes';
+import TipoRoutes from './routes/tipo.routes';
 import LoginRoutes from './routes/login.routes';
+import ClienteRoutes from './routes/cliente.routes';
 import UsuarioRoutes from './routes/usuario.routes';
 import CilindroRoutes from './routes/cilindro.routes';
 import PropietarioRoutes from './routes/propietario.routes';
 
-// Inicializa express
+// Inicializaciones
 const app = express();
 
 //settings
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT);
 
 //public folder
 const publicPath = path.resolve(__dirname, './public');
@@ -37,8 +39,10 @@ app.get('/api/', (req, res) => {
 });
 
 app.use(RolRoutes);
+app.use(TipoRoutes);
 app.use(AdminRoutes);
 app.use(LoginRoutes);
+app.use(ClienteRoutes);
 app.use(UsuarioRoutes);
 app.use(CilindroRoutes);
 app.use(PropietarioRoutes);

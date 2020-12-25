@@ -4,11 +4,15 @@ const { connect, sql, checkError, errorBD } = require('../database/cnxn');
 const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 
+/**********************************************************************************************************************
+ * OBSERVACIONES:                                                                                                    *
+ * Hay varios mensajes de error que se pueden encontrar en el archivo en el archivo CNXN en la carpeta DATABASE      *
+ * La función execute llama a procedimientos almacenados de SQL Server (revisar scripts)                             *
+ *********************************************************************************************************************/
+
 /**
  * VERIFICA USUARIO
  * Si todo sale bien retorna un objeto con { ok: boolean, { response: usuarioDB }, token: string }
- * De caso contrario hay mensajes de error que se pueden encontrar en el archivo cnxn en la carpeta database
- * La consulta se hace mediante el procedimiento almacenado [Login]
  * El objeto debe contener los campos de
  * { email: nvarchar(30), password: nvarhcar(MAX) }
  * El password no se verifica en el procedimiento almacenado, ya que bcrypt tiene una función de comparación integrada

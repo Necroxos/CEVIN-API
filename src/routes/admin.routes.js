@@ -6,6 +6,11 @@ import { verificaToken, verificaAdminRole } from '../middleware/autenticacion';
 import { Router } from 'express';
 const router = Router();
 
+/**********************************************************************************************************************
+ * OBSERVACIONES:                                                                                                    *
+ * Las rutas poseen verificación (según corresponda) en base a middleware para: Token válido y privilegios de Admin  *
+ *********************************************************************************************************************/
+
 /**
  * Ingresa el primer administrador
  * Si no existe ingresa el rol administrador

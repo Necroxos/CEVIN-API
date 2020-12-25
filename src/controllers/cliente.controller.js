@@ -1,7 +1,5 @@
 // Conexiones a la base de datos y algunos estandar de errores
 const { connect, sql, checkError, errorBD, sinResultados } = require('../database/cnxn');
-// Módulo para encriptar la contraseña
-const bycrpt = require('bcrypt');
 
 /**********************************************************************************************************************
  * OBSERVACIONES:                                                                                                    *
@@ -10,7 +8,7 @@ const bycrpt = require('bcrypt');
  *********************************************************************************************************************/
 
 /**
- * OBTENER UN [Usuario.Info] en base a su [rut]
+ * OBTENER UN [Cliente.Info] en base a su [rut]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
 export const obtenerUno = async(req, res) => {
@@ -23,7 +21,7 @@ export const obtenerUno = async(req, res) => {
     await pool.request()
         .input('dni', sql.NVarChar, rut[0])
         .input('dv', sql.NVarChar, rut[1])
-        .execute('SelectUsuario')
+        .execute('SelectCliente')
         .then((result) => {
             if (result.recordset[0]) res.json({
                 ok: true,
@@ -40,8 +38,7 @@ export const obtenerUno = async(req, res) => {
 };
 
 /**
- * OBTENER TODOS los usuarios de [Usuario.Info]
- * También se utiliza el middleware para verificar que el token que se utiliza es válido
+ * OBTENER TODOS los clientes de [Cliente.Info]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
 export const obtenerTodos = async(req, res) => {
@@ -50,7 +47,7 @@ export const obtenerTodos = async(req, res) => {
     if (!pool) return errorBD(res);
 
     const result = await pool.request()
-        .execute('SelectUsuarios')
+        .execute('SelectClientes')
         .then((result) => {
             res.json({
                 ok: true,
@@ -65,13 +62,11 @@ export const obtenerTodos = async(req, res) => {
 };
 
 /**
- * INGRESAR un nuevo usuario
- * También se utiliza el middleware para verificar que el token que se utiliza es válido
- * Y se verifica que sólo los administradores pueden crear más usuarios
+ * INGRESAR un nuevo cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto ingresado } }
  * El objeto debe contener los campos de
  * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombres: nvarchar(30), apellidos: nvarhcar(30),
- *   password: nvarchar(MAX), rol_id: int }
+ *   razon_social: nvarchar(30), telefono: int, empresa: bit }
  */
 export const ingresar = async(req, res) => {
 
@@ -81,20 +76,20 @@ export const ingresar = async(req, res) => {
     await pool.request()
         .input('dni', sql.NVarChar, req.body.dni)
         .input('dv', sql.NVarChar, req.body.dv)
-        .input('email', sql.NVarChar, req.body.email)
+        .input('email', sql.NVarChar, req.body.email || null)
         .input('nombres', sql.NVarChar, req.body.nombres)
         .input('apellidos', sql.NVarChar, req.body.apellidos)
-        .input('password', sql.NVarChar, bycrpt.hashSync(req.body.password, 10))
-        .input('rol_id', sql.Int, req.body.rol_id)
-        .execute('InsertUsuario')
+        .input('razon_social', sql.NVarChar, req.body.razon_social || null)
+        .input('telefono', sql.Int, req.body.telefono || null)
+        .input('empresa', sql.NVarChar, req.body.empresa)
+        .execute('InsertCliente')
         .then((result) => {
             if (result) res.json({
                 ok: true,
                 message: 'Inserción correcta',
                 response: {
                     nombre: req.body.nombres + ' ' + req.body.apellidos,
-                    rut: req.body.dni + '-' + req.body.dv,
-                    email: req.body.email
+                    rut: req.body.dni + '-' + req.body.dv
                 }
             });
         })
@@ -105,10 +100,11 @@ export const ingresar = async(req, res) => {
 };
 
 /**
- * ACTUALIZAR un usuario
+ * ACTUALIZAR un cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
  * El objeto debe contener los campos de
- * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombres: nvarchar(30), apellidos: nvarhcar(30), id: int }
+ * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombres: nvarchar(30), apellidos: nvarhcar(30),
+ *   razon_social: nvarchar(30), telefono: int, empresa: bit }
  */
 export const actualizar = async(req, res) => {
 
@@ -118,12 +114,14 @@ export const actualizar = async(req, res) => {
     await pool.request()
         .input('dni', sql.NVarChar, req.body.dni)
         .input('dv', sql.NVarChar, req.body.dv)
-        .input('email', sql.NVarChar, req.body.email)
+        .input('email', sql.NVarChar, req.body.email || null)
         .input('nombres', sql.NVarChar, req.body.nombres)
         .input('apellidos', sql.NVarChar, req.body.apellidos)
-        .input('rol_id', sql.Int, req.body.rol_id)
-        .input('id', sql.Int, req.body.usuario_id)
-        .execute('UpdateUsuario')
+        .input('razon_social', sql.NVarChar, req.body.razon_social || null)
+        .input('telefono', sql.Int, req.body.telefono || null)
+        .input('empresa', sql.NVarChar, req.body.empresa)
+        .input('id', sql.Int, req.body.cliente_id)
+        .execute('UpdateCliente')
         .then((result) => {
             if (result) res.json({
                 ok: true,
@@ -142,7 +140,7 @@ export const actualizar = async(req, res) => {
 };
 
 /**
- * DESACTIVAR o ACTIVAR un usuario de la base de datos
+ * DESACTIVAR o ACTIVAR un cliente de la base de datos
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
  */
 export const cambiarEstado = async(req, res) => {
@@ -156,7 +154,7 @@ export const cambiarEstado = async(req, res) => {
     await pool.request()
         .input('activo', sql.NVarChar, req.body.activo)
         .input('id', sql.NVarChar, req.body.id)
-        .execute('ToggleStatusUsuario')
+        .execute('ToggleStatusCliente')
         .then((result) => {
             if (result) res.json({
                 ok: true,
