@@ -49,7 +49,7 @@ export const obtenerTodos = async(req, res) => {
     await pool.request()
         .execute('SelectCilindros')
         .then((result) => {
-            res.json({
+            if (result) res.json({
                 ok: true,
                 message: 'Petición finalizada',
                 response: result.recordset

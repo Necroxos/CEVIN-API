@@ -6,9 +6,12 @@ import path from 'path';
 import cors from 'cors';
 // Rutas
 import RolRoutes from './routes/rol.routes';
-import AdminRoutes from './routes/admin.routes';
 import TipoRoutes from './routes/tipo.routes';
+import ZonaRoutes from './routes/zona.routes';
+import AdminRoutes from './routes/admin.routes';
 import LoginRoutes from './routes/login.routes';
+import VentaRoutes from './routes/venta.routes';
+import ComunaRoutes from './routes/comuna.routes';
 import ClienteRoutes from './routes/cliente.routes';
 import UsuarioRoutes from './routes/usuario.routes';
 import CilindroRoutes from './routes/cilindro.routes';
@@ -40,8 +43,11 @@ app.get('/api/', (req, res) => {
 
 app.use(RolRoutes);
 app.use(TipoRoutes);
+app.use(ZonaRoutes);
 app.use(AdminRoutes);
 app.use(LoginRoutes);
+app.use(VentaRoutes);
+app.use(ComunaRoutes);
 app.use(ClienteRoutes);
 app.use(UsuarioRoutes);
 app.use(CilindroRoutes);

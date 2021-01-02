@@ -14,6 +14,9 @@ const router = Router();
 // Realizamos la petición GET para OBTENER UN cliente en base a su [rut]
 router.get('/cliente/:rut', [verificaToken], clienteController.obtenerUno);
 
+// Realizamos la petición GET para OBTENER UNA dirección de un cliente por ID
+router.get('/direccion/:id', [verificaToken], clienteController.obtenerDireccion);
+
 // Realizamos la petición GET para OBTENER TODOS los clientes
 router.get('/clientes', [verificaToken], clienteController.obtenerTodos);
 

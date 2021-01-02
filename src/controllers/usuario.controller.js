@@ -155,7 +155,7 @@ export const cambiarEstado = async(req, res) => {
     /** Stored Procedure: Return */
     await pool.request()
         .input('activo', sql.NVarChar, req.body.activo)
-        .input('id', sql.NVarChar, req.body.id)
+        .input('id', sql.NVarChar, req.body.usuario_id)
         .execute('ToggleStatusUsuario')
         .then((result) => {
             if (result) res.json({

@@ -15,12 +15,16 @@ export const obtenerTodos = async(req, res) => {
     let pool = await connect();
     if (!pool) return res.status(403);
 
-    const result = await pool.request().query(`select * from [Usuario.Rol]`);
-
-    res.json({
-        ok: true,
-        response: result.recordset
-    });
+    await pool.request()
+        .execute('SelectRoles')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset
+            });
+        })
+        .catch((err) => checkError(err, res));
 
     pool.close();
 

@@ -38,6 +38,11 @@ function checkError(err, res) {
             message: err.originalError.message
         }
     });
+    else res.status(403).json({
+        ok: false,
+        response: 'Error desconocido',
+        err: err
+    })
 }
 
 /**

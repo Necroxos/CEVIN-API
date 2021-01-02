@@ -38,6 +38,33 @@ export const obtenerUno = async(req, res) => {
 };
 
 /**
+ * OBTENER UN [Cliente.Info] en base a su [rut]
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
+ */
+export const obtenerDireccion = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    await pool.request()
+        .input('id', sql.NVarChar, req.params.id)
+        .execute('SelectDireccion')
+        .then((result) => {
+            if (result.recordset[0]) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset[0]
+            });
+            else sinResultados(res);
+        })
+        .catch((err) => checkError(err, res));
+
+
+    pool.close();
+
+};
+
+/**
  * OBTENER TODOS los clientes de [Cliente.Info]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
@@ -46,10 +73,10 @@ export const obtenerTodos = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
-    const result = await pool.request()
+    await pool.request()
         .execute('SelectClientes')
         .then((result) => {
-            res.json({
+            if (result) res.json({
                 ok: true,
                 message: 'Petición finalizada',
                 response: result.recordset
@@ -65,7 +92,7 @@ export const obtenerTodos = async(req, res) => {
  * INGRESAR un nuevo cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto ingresado } }
  * El objeto debe contener los campos de
- * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombres: nvarchar(30), apellidos: nvarhcar(30),
+ * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombre_completo: nvarchar(50),
  *   razon_social: nvarchar(30), telefono: int, empresa: bit }
  */
 export const ingresar = async(req, res) => {
@@ -73,23 +100,39 @@ export const ingresar = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
+    const cliente = req.body.cliente;
+    const direccion = req.body.direccion;
+    let clienteBD;
+
     await pool.request()
-        .input('dni', sql.NVarChar, req.body.dni)
-        .input('dv', sql.NVarChar, req.body.dv)
-        .input('email', sql.NVarChar, req.body.email || null)
-        .input('nombres', sql.NVarChar, req.body.nombres)
-        .input('apellidos', sql.NVarChar, req.body.apellidos)
-        .input('razon_social', sql.NVarChar, req.body.razon_social || null)
-        .input('telefono', sql.Int, req.body.telefono || null)
-        .input('empresa', sql.NVarChar, req.body.empresa)
+        .input('dni', sql.NVarChar, cliente.dni)
+        .input('dv', sql.NVarChar, cliente.dv)
+        .input('email', sql.NVarChar, cliente.email)
+        .input('nombre', sql.NVarChar, cliente.nombre_completo)
+        .input('razon_social', sql.NVarChar, cliente.razon_social || null)
+        .input('telefono', sql.Int, cliente.telefono)
+        .input('empresa', sql.NVarChar, cliente.empresa)
         .execute('InsertCliente')
+        .then((result) => {
+            if (result.recordset) clienteBD = result.recordset[0];
+        })
+        .catch((err) => checkError(err, res));
+
+    await pool.request()
+        .input('cliente_id', sql.Int, clienteBD.id)
+        .input('calle', sql.NVarChar, direccion.calle)
+        .input('numero', sql.NVarChar, direccion.numero)
+        .input('depto', sql.NVarChar, direccion.departamento || null)
+        .input('bloque', sql.NVarChar, direccion.bloque || null)
+        .input('zona_id', sql.Int, direccion.zona_id)
+        .execute('InsertDireccion')
         .then((result) => {
             if (result) res.json({
                 ok: true,
                 message: 'Inserción correcta',
                 response: {
-                    nombre: req.body.nombres + ' ' + req.body.apellidos,
-                    rut: req.body.dni + '-' + req.body.dv
+                    cliente,
+                    direccion
                 }
             });
         })
@@ -103,7 +146,7 @@ export const ingresar = async(req, res) => {
  * ACTUALIZAR un cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
  * El objeto debe contener los campos de
- * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombres: nvarchar(30), apellidos: nvarhcar(30),
+ * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombre_completo: nvarchar(50),
  *   razon_social: nvarchar(30), telefono: int, empresa: bit }
  */
 export const actualizar = async(req, res) => {
@@ -111,25 +154,36 @@ export const actualizar = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
+    const cliente = req.body.cliente;
+    const direccion = req.body.direccion;
+
     await pool.request()
-        .input('dni', sql.NVarChar, req.body.dni)
-        .input('dv', sql.NVarChar, req.body.dv)
-        .input('email', sql.NVarChar, req.body.email || null)
-        .input('nombres', sql.NVarChar, req.body.nombres)
-        .input('apellidos', sql.NVarChar, req.body.apellidos)
-        .input('razon_social', sql.NVarChar, req.body.razon_social || null)
-        .input('telefono', sql.Int, req.body.telefono || null)
-        .input('empresa', sql.NVarChar, req.body.empresa)
-        .input('id', sql.Int, req.body.cliente_id)
+        .input('dni', sql.NVarChar, cliente.dni)
+        .input('dv', sql.NVarChar, cliente.dv)
+        .input('email', sql.NVarChar, cliente.email)
+        .input('nombre', sql.NVarChar, cliente.nombre_completo)
+        .input('razon_social', sql.NVarChar, cliente.razon_social || null)
+        .input('telefono', sql.Int, cliente.telefono)
+        .input('empresa', sql.NVarChar, cliente.empresa)
+        .input('id', sql.Int, cliente.cliente_id)
         .execute('UpdateCliente')
+        .catch((err) => checkError(err, res));
+
+    await pool.request()
+        .input('cliente_id', sql.Int, cliente.cliente_id)
+        .input('calle', sql.NVarChar, direccion.calle)
+        .input('numero', sql.NVarChar, direccion.numero)
+        .input('depto', sql.NVarChar, direccion.departamento || null)
+        .input('bloque', sql.NVarChar, direccion.bloque || null)
+        .input('zona_id', sql.Int, direccion.zona_id)
+        .execute('UpdateDireccion')
         .then((result) => {
             if (result) res.json({
                 ok: true,
                 message: 'Actualización correcta',
                 response: {
-                    Rut: req.body.dni + '-' + req.body.dv,
-                    Nombre: req.body.nombres + ' ' + req.body.apellidos,
-                    Correo: req.body.email
+                    cliente,
+                    direccion
                 }
             });
         })
@@ -149,11 +203,10 @@ export const cambiarEstado = async(req, res) => {
     if (!pool) return errorBD(res);
     /** validaciones */
 
-
     /** Stored Procedure: Return */
     await pool.request()
         .input('activo', sql.NVarChar, req.body.activo)
-        .input('id', sql.NVarChar, req.body.id)
+        .input('id', sql.NVarChar, req.body.cliente_id)
         .execute('ToggleStatusCliente')
         .then((result) => {
             if (result) res.json({

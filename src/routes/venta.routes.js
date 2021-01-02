@@ -1,5 +1,5 @@
 // Controlador con la lógica
-import * as cilindroController from '../controllers/cilindro.controller'
+import * as ventaController from '../controllers/venta.controller'
 // Middleware para verificaciones
 import { verificaToken, verificaAdminRole } from '../middleware/autenticacion';
 // Inicializa router
@@ -12,18 +12,18 @@ const router = Router();
  *********************************************************************************************************************/
 
 // Realizamos la petición GET para OBTENER UN [Activo.Cilindro] en base a su [codigo_activo]
-router.get('/cilindro/:code', [verificaToken], cilindroController.obtenerUno);
+router.get('/venta/:code', [verificaToken], ventaController.obtenerUno);
 
-// Se realiza la petición GET para OBTENER TODOS los cilindros en la base de datos
-router.get('/cilindros', [verificaToken], cilindroController.obtenerTodos);
+// Se realiza la petición GET para OBTENER TODAS las ventas en la base de datos
+router.get('/ventas', [verificaToken], ventaController.obtenerTodos);
 
-// Se realiza una petición POST para INGRESAR un nuevo cilindro
-router.post('/cilindro', [verificaToken], cilindroController.ingresar);
+// Se realiza una petición POST para INGRESAR una nueva venta
+router.post('/venta', [verificaToken], ventaController.ingresar);
 
-// Se realiza una petición PUT para ACTUALIZAR un cilindro
-router.put('/cilindro', [verificaToken], cilindroController.actualizar);
+// Se realiza una petición PUT para ACTUALIZAR una venta
+router.put('/venta', [verificaToken], ventaController.actualizar);
 
-// Se realiza una petición DELETE para DESACTIVAR o ACTIVAR un cilindro de la base de datos
-router.put('/cambio-estado/cilindro', [verificaToken, verificaAdminRole], cilindroController.cambiarEstado);
+// Se realiza una petición DELETE para DESACTIVAR o ACTIVAR una venta de la base de datos
+router.put('/cambio-estado/venta', [verificaToken, verificaAdminRole], ventaController.cambiarEstado);
 
 export default router;

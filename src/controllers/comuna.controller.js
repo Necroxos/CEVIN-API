@@ -7,7 +7,7 @@ const { connect, sql, checkError } = require('../database/cnxn');
  *********************************************************************************************************************/
 
 /**
- * OBTENER TODOS los propietarios de [Activo.Propietario]
+ * Realizamos la petición GET para OBTENER TODAS las comunas de [Direccion.Comuna]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
 export const obtenerTodos = async(req, res) => {
@@ -16,9 +16,9 @@ export const obtenerTodos = async(req, res) => {
     if (!pool) return res.status(403);
 
     await pool.request()
-        .execute('SelectPropietarios')
+        .execute('SelectComunas')
         .then((result) => {
-            if (result) res.json({
+            if (result.recordset) res.json({
                 ok: true,
                 message: 'Petición finalizada',
                 response: result.recordset
