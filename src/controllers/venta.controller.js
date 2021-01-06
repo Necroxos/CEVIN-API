@@ -43,8 +43,59 @@ export const obtenerTodos = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
-    const result = await pool.request()
+    await pool.request()
         .execute('SelectVentas')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
+/**
+ * OBTENER TODOS los activos involucrados en una [venta]
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
+ */
+export const obtenerCilindrosDeVenta = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    await pool.request()
+        .input('venta_id', sql.NVarChar, req.params.id)
+        .execute('SelectCilindrosDeVenta')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
+/**
+ * OBTENER TODOS los activos disponibles para una [venta]
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
+ */
+export const obtenerCilindrosParaVenta = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    console.log('here');
+
+    await pool.request()
+        .execute('SelectCilindrosParaVenta')
         .then((result) => {
             if (result) res.json({
                 ok: true,
@@ -72,10 +123,27 @@ export const ingresar = async(req, res) => {
     let ventaObj;
     let cilindroObj = new Array();
     const cilindros = req.body.cilindros;
+    const usuario_id = req.usuario.id;
+
+    try {
+        if (cilindros.length < 1)
+            return res.status(400).json({
+                ok: false,
+                message: 'Se necesita al menos un cilindro en la venta',
+                response: 'No se envió el listado de cilindros para la venta o arriendo'
+            });
+    } catch (error) {
+        return res.status(400).json({
+            ok: false,
+            message: 'Se necesita al menos un cilindro en la venta',
+            response: error.message
+        });
+    }
 
     await pool.request()
         .input('codigo', sql.NVarChar, req.body.codigo)
         .input('cliente_id', sql.NVarChar, req.body.cliente_id)
+        .input('usuario_id', sql.NVarChar, usuario_id)
         .execute('InsertVenta')
         .then((result) => {
             if (result) ventaObj = result.recordset[0];

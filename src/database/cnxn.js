@@ -50,7 +50,7 @@ function checkError(err, res) {
  * @param res Recibe la respuesta original de la función para retornar
  */
 function errorBD(res) {
-    res.status(403).json({
+    res.status(500).json({
         ok: false,
         response: 'Error de conexión a la base de datos',
         err: {
@@ -65,7 +65,7 @@ function errorBD(res) {
  * @param res Recibe la respuesta original de la función para retornar
  */
 function sinResultados(res) {
-    res.status(403).json({
+    res.status(204).json({
         ok: false,
         response: 'Sin información en la base de datos',
         err: {
