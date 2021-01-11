@@ -76,9 +76,9 @@ export const ingresar = async(req, res) => {
     console.log(body);
 
     await pool.request()
+        .input('tipo_id', sql.Int, req.body.tipo_id)
         .input('capacidad', sql.Int, req.body.metros_cubicos)
         .input('codigo', sql.NVarChar, req.body.codigo_activo)
-        .input('tipo_id', sql.Int, req.body.tipo_id)
         .input('fecha_mantencion', sql.NVarChar, req.body.fecha_mantencion)
         .input('desc_mantencion', sql.NVarChar, req.body.desc_mantenimiento || null)
         .input('propietario_id', sql.NVarChar, req.body.propietario_id)
@@ -111,29 +111,41 @@ export const actualizar = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
-    console.log(req.body);
+    let seguir = false;
 
     await pool.request()
         .input('id', sql.Int, req.body.cilindro_id)
+        .input('tipo_id', sql.Int, req.body.tipo_id)
+        .input('stock', sql.NVarChar, req.body.stock)
+        .input('cargado', sql.NVarChar, req.body.cargado)
         .input('capacidad', sql.Int, req.body.metros_cubicos)
         .input('codigo', sql.NVarChar, req.body.codigo_activo)
-        .input('tipo_id', sql.Int, req.body.tipo_id)
-        .input('fecha_mantencion', sql.NVarChar, req.body.fecha_mantencion)
         .input('propietario_id', sql.NVarChar, req.body.propietario_id)
-        .input('desc_mantencion', sql.NVarChar, req.body.desc_mantenimiento || null)
         .execute('UpdateCilindro')
-        .then((result) => {
-            if (result) res.json({
-                ok: true,
-                message: 'Actualización correcta',
-                response: {
-                    capacidad: req.body.metros_cubicos + ' metros cúbicos',
-                    codigo: req.body.codigo,
-                    ult_mantenimiento: req.body.fecha_mantencion
-                }
-            });
-        })
+        .then(() => seguir = true)
         .catch((err) => checkError(err, res));
+
+    if (seguir) {
+        await pool.request()
+            .input('id', sql.Int, req.body.cilindro_id)
+            .input('fecha_mantencion', sql.NVarChar, req.body.fecha_mantencion)
+            .input('desc_mantencion', sql.NVarChar, req.body.desc_mantenimiento || null)
+            .execute('UpdateMantencion')
+            .then((result) => {
+                if (result) res.json({
+                    ok: true,
+                    message: 'Actualización correcta',
+                    response: {
+                        capacidad: req.body.metros_cubicos + ' metros cúbicos',
+                        codigo: req.body.codigo,
+                        ult_mantenimiento: req.body.fecha_mantencion,
+                        stock: !!Number(req.body.stock),
+                        cargado: !!Number(req.body.cargado)
+                    }
+                });
+            })
+            .catch((err) => checkError(err, res));
+    }
 
     pool.close();
 

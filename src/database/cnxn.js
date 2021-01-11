@@ -12,7 +12,8 @@ async function connect() {
         let pool = await sql.connect(db);
         return pool;
     } catch (err) {
-        console.log('Conexión fallida', err)
+        console.log('Conexión fallida: ', err.message)
+        console.log('code: ', err.code)
         return null;
     }
 }

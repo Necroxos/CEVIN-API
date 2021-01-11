@@ -1,4 +1,6 @@
 const { connect, sql, checkError } = require('../database/cnxn');
+// Control del body
+const _ = require('underscore');
 
 /**********************************************************************************************************************
  * OBSERVACIONES:                                                                                                    *
@@ -22,6 +24,92 @@ export const obtenerTodos = async(req, res) => {
                 ok: true,
                 message: 'Petición finalizada',
                 response: result.recordset
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
+/**
+ * INGRESAR un nuevo tipo de gas
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, response: descripcion }
+ */
+export const ingresar = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    let body = _.pick(req.body, ['descripcion']);
+
+    await pool.request()
+        .input('descripcion', sql.NVarChar, req.body.descripcion)
+        .execute('InsertTipoGas')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Inserción correcta',
+                response: req.body.descripcion
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
+/**
+ * ACTUALIZAR un usuario
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, response: descripcion }
+ */
+export const actualizar = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    console.log(req.body);
+
+    await pool.request()
+        .input('descripcion', sql.NVarChar, req.body.descripcion)
+        .input('id', sql.Int, req.body.id)
+        .execute('UpdateTipoGas')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Actualización correcta',
+                response: {
+                    descripcion: req.body.descripcion
+                }
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
+/**
+ * DESACTIVAR o ACTIVAR un usuario de la base de datos
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
+ * El objeto debe contener los campos de
+ * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(), nombres: nvarchar(30), apellidos: nvarhcar(30),
+ *   password: nvarchar(MAX), rol_id: int }
+ */
+export const cambiarEstado = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    await pool.request()
+        .input('activo', sql.Bit, req.body.activo)
+        .input('id', sql.Int, req.body.id)
+        .execute('ToggleStatusTipoGas')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Cambio de estado',
+                response: { activo: !!Number(req.body.activo) }
             });
         })
         .catch((err) => checkError(err, res));
