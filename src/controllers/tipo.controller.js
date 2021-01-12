@@ -33,6 +33,30 @@ export const obtenerTodos = async(req, res) => {
 };
 
 /**
+ * Realizamos la petición GET para OBTENER TODOS los tipo_gas de [Activo.Tipo]  que tengan [activo = true]
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
+ */
+export const obtenerActivos = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return res.status(403);
+
+    await pool.request()
+        .execute('SelectTipos')
+        .then((result) => {
+            if (result.recordset) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
+/**
  * INGRESAR un nuevo tipo de gas
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, response: descripcion }
  */
@@ -60,7 +84,7 @@ export const ingresar = async(req, res) => {
 };
 
 /**
- * ACTUALIZAR un usuario
+ * ACTUALIZAR un tipo de gas
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, response: descripcion }
  */
 export const actualizar = async(req, res) => {
@@ -90,11 +114,8 @@ export const actualizar = async(req, res) => {
 };
 
 /**
- * DESACTIVAR o ACTIVAR un usuario de la base de datos
+ * DESACTIVAR o ACTIVAR un tipo de gas de la base de datos
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
- * El objeto debe contener los campos de
- * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(), nombres: nvarchar(30), apellidos: nvarhcar(30),
- *   password: nvarchar(MAX), rol_id: int }
  */
 export const cambiarEstado = async(req, res) => {
 

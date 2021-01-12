@@ -14,4 +14,16 @@ const router = Router();
 // Realizamos la petición GET para OBTENER TODAS las comunas
 router.get('/comunas', [verificaToken], comunaController.obtenerTodos);
 
+// Realizamos la petición GET para OBTENER las comunas ACTIVAS
+router.get('/comunas/activas', [verificaToken], comunaController.obtenerActivos);
+
+// Se realiza una petición POST para INGRESAR una nueva comuna
+router.post('/comuna', [verificaToken, verificaAdminRole], comunaController.ingresar);
+
+// Se realiza una petición PUT para ACTUALIZAR una comuna
+router.put('/comuna', [verificaToken], comunaController.actualizar);
+
+// Se realiza una petición PUT para DESACTIVAR o ACTIVAR una comuna
+router.put('/cambio-estado/comuna', [verificaToken, verificaAdminRole], comunaController.cambiarEstado);
+
 export default router;

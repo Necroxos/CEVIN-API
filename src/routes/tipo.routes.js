@@ -14,6 +14,9 @@ const router = Router();
 // Realizamos la petición GET para OBTENER TODOS los tipo de gases
 router.get('/gases', [verificaToken], tipoController.obtenerTodos);
 
+// Realizamos la petición GET para OBTENER ACTIVOS los tipo de gases
+router.get('/gases/activos', [verificaToken], tipoController.obtenerActivos);
+
 // Se realiza una petición POST para INGRESAR un nuevo tipo de gas
 router.post('/gas', [verificaToken, verificaAdminRole], tipoController.ingresar);
 

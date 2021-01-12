@@ -14,4 +14,16 @@ const router = Router();
 // Realizamos la petición GET para OBTENER TODOS los propietarios
 router.get('/propietarios', [verificaToken], propietarioController.obtenerTodos);
 
+// Realizamos la petición GET para OBTENER ACTIVOS los propietarios
+router.get('/propietarios/activos', [verificaToken], propietarioController.obtenerActivos);
+
+// Se realiza una petición POST para INGRESAR un nuevo propietario
+router.post('/propietario', [verificaToken, verificaAdminRole], propietarioController.ingresar);
+
+// Se realiza una petición PUT para ACTUALIZAR un propietario
+router.put('/propietario', [verificaToken], propietarioController.actualizar);
+
+// Se realiza una petición PUT para DESACTIVAR o ACTIVAR un propietario
+router.put('/cambio-estado/propietario', [verificaToken, verificaAdminRole], propietarioController.cambiarEstado);
+
 export default router;
