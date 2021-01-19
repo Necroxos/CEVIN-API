@@ -29,6 +29,9 @@ router.post('/venta', [verificaToken], ventaController.ingresar);
 // Se realiza una petición PUT para ACTUALIZAR una venta
 router.put('/venta', [verificaToken], ventaController.actualizar);
 
+// Se realiza una petición PUT para ACTUALIZAR un cilindro de una venta
+router.put('/devolver/cilindro', [verificaToken], ventaController.devolverCilindro);
+
 // Se realiza una petición DELETE para DESACTIVAR o ACTIVAR una venta de la base de datos
 router.put('/cambio-estado/venta', [verificaToken, verificaAdminRole], ventaController.cambiarEstado);
 
