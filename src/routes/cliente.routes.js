@@ -24,7 +24,7 @@ router.get('/direccion/cliente/:id', [verificaToken], clienteController.obtenerD
 router.get('/clientes', [verificaToken], clienteController.obtenerTodos);
 
 // Se realiza una petición POST para INGRESAR un nuevo cliente
-router.post('/cliente', [verificaToken, verificaAdminRole], clienteController.ingresar);
+router.post('/cliente', [verificaToken], clienteController.ingresar);
 
 // Se realiza una petición PUT para ACTUALIZAR un cliente
 router.put('/cliente', [verificaToken], clienteController.actualizar);

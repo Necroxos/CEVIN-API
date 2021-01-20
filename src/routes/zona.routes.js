@@ -24,7 +24,7 @@ router.get('/zonas/comuna/:id', [verificaToken], zonaController.obtenerPorComuna
 router.post('/zona', [verificaToken, verificaAdminRole], zonaController.ingresar);
 
 // Se realiza una petición PUT para ACTUALIZAR una zona
-router.put('/zona', [verificaToken], zonaController.actualizar);
+router.put('/zona', [verificaToken, verificaAdminRole], zonaController.actualizar);
 
 // Se realiza una petición PUT para DESACTIVAR o ACTIVAR una zona
 router.put('/cambio-estado/zona', [verificaToken, verificaAdminRole], zonaController.cambiarEstado);

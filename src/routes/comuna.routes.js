@@ -21,7 +21,7 @@ router.get('/comunas/activas', [verificaToken], comunaController.obtenerActivos)
 router.post('/comuna', [verificaToken, verificaAdminRole], comunaController.ingresar);
 
 // Se realiza una petición PUT para ACTUALIZAR una comuna
-router.put('/comuna', [verificaToken], comunaController.actualizar);
+router.put('/comuna', [verificaToken, verificaAdminRole], comunaController.actualizar);
 
 // Se realiza una petición PUT para DESACTIVAR o ACTIVAR una comuna
 router.put('/cambio-estado/comuna', [verificaToken, verificaAdminRole], comunaController.cambiarEstado);

@@ -21,7 +21,7 @@ router.get('/usuarios', [verificaToken], usuarioController.obtenerTodos);
 router.post('/usuario', [verificaToken, verificaAdminRole], usuarioController.ingresar);
 
 // Se realiza una petición PUT para ACTUALIZAR un usuario
-router.put('/usuario', [verificaToken], usuarioController.actualizar);
+router.put('/usuario', [verificaToken, verificaAdminRole], usuarioController.actualizar);
 
 // Se realiza una petición PUT para DESACTIVAR o ACTIVAR un usuario de la base de datos
 router.put('/cambio-estado/usuario', [verificaToken, verificaAdminRole], usuarioController.cambiarEstado);

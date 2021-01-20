@@ -122,7 +122,7 @@ export const ingresar = async(req, res) => {
 
     let ventaObj;
     let cilindroObj = new Array();
-    const cilindros = req.body.cilindros;
+    const cilindros = req.body.cobros;
     const usuario_id = req.usuario.id;
 
     try {
@@ -143,6 +143,7 @@ export const ingresar = async(req, res) => {
     await pool.request()
         .input('codigo', sql.NVarChar, req.body.codigo)
         .input('cliente_id', sql.NVarChar, req.body.cliente_id)
+        .input('monto', sql.NVarChar, req.body.monto)
         .input('usuario_id', sql.NVarChar, usuario_id)
         .execute('InsertVenta')
         .then((result) => {
@@ -153,7 +154,8 @@ export const ingresar = async(req, res) => {
     for (let i = 0; i < cilindros.length; i++) {
         await pool.request()
             .input('venta_id', sql.Int, ventaObj.id)
-            .input('cilindro_id', sql.Int, cilindros[i])
+            .input('cilindro_id', sql.Int, cilindros[i].cilindro_id)
+            .input('cobro', sql.Int, cilindros[i].cobro)
             .input('fecha_entrega', sql.NVarChar, req.body.fecha_entrega)
             .execute('InsertCilindroVenta')
             .then((result) => {
@@ -161,8 +163,6 @@ export const ingresar = async(req, res) => {
             })
             .catch((err) => checkError(err, res));
     }
-
-    console.log(ventaObj);
 
     res.json({
         ok: true,
@@ -186,8 +186,8 @@ export const actualizar = async(req, res) => {
 
     let ventaObj;
     let cilindroObj = new Array();
-    const cilindros = req.body.cilindros;
-    const body = _.pick(req.body, ['codigo', 'cliente_id', 'venta_id']);
+    const cilindros = req.body.cobros;
+    const body = _.pick(req.body, ['codigo', 'cliente_id', 'venta_id', 'monto']);
 
     try {
         if (cilindros.length < 1)
@@ -207,6 +207,7 @@ export const actualizar = async(req, res) => {
     await pool.request()
         .input('codigo', sql.NVarChar, body.codigo)
         .input('cliente_id', sql.NVarChar, body.cliente_id)
+        .input('monto', sql.NVarChar, body.monto)
         .input('venta_id', sql.NVarChar, body.venta_id)
         .execute('UpdateVenta')
         .then((result) => {
@@ -217,7 +218,8 @@ export const actualizar = async(req, res) => {
     for (let i = 0; i < cilindros.length; i++) {
         await pool.request()
             .input('venta_id', sql.Int, ventaObj.id)
-            .input('cilindro_id', sql.Int, cilindros[i])
+            .input('cilindro_id', sql.Int, cilindros[i].cilindro_id)
+            .input('cobro', sql.Int, cilindros[i].cobro)
             .input('fecha_entrega', sql.NVarChar, req.body.fecha_entrega)
             .execute('InsertCilindroVenta')
             .then((result) => {
@@ -225,8 +227,6 @@ export const actualizar = async(req, res) => {
             })
             .catch((err) => checkError(err, res));
     }
-
-    console.log(ventaObj);
 
     res.json({
         ok: true,

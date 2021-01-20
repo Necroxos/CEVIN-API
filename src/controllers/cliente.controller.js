@@ -1,5 +1,7 @@
 // Conexiones a la base de datos y algunos estandar de errores
 const { connect, sql, checkError, errorBD, sinResultados } = require('../database/cnxn');
+// Coordenadas
+const nodeGeocoder = require('node-geocoder');
 
 /**********************************************************************************************************************
  * OBSERVACIONES:                                                                                                    *
@@ -119,9 +121,6 @@ export const obtenerDirecciones = async(req, res) => {
 /**
  * INGRESAR un nuevo cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto ingresado } }
- * El objeto debe contener los campos de
- * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombre_completo: nvarchar(50),
- *   razon_social: nvarchar(30), telefono: int, empresa: bit }
  */
 export const ingresar = async(req, res) => {
 
@@ -130,21 +129,14 @@ export const ingresar = async(req, res) => {
 
     const cliente = req.body.cliente;
     const direccion = req.body.direccion;
-    let clienteBD;
+    const coordenadas = await obtenerCoordenadas(direccion);
+    const clienteBD = await ingresarCliente(pool, cliente);
 
-    await pool.request()
-        .input('dni', sql.NVarChar, cliente.dni)
-        .input('dv', sql.NVarChar, cliente.dv)
-        .input('email', sql.NVarChar, cliente.email)
-        .input('nombre', sql.NVarChar, cliente.nombre_completo)
-        .input('razon_social', sql.NVarChar, cliente.razon_social || null)
-        .input('telefono', sql.Int, cliente.telefono)
-        .input('empresa', sql.NVarChar, cliente.empresa)
-        .execute('InsertCliente')
-        .then((result) => {
-            if (result.recordset) clienteBD = result.recordset[0];
-        })
-        .catch((err) => checkError(err, res));
+    if (clienteBD.message) {
+        return checkError(clienteBD, res);
+    } else if (coordenadas.message) {
+        return checkError(coordenadas, res);
+    }
 
     await pool.request()
         .input('cliente_id', sql.Int, clienteBD.id)
@@ -152,6 +144,8 @@ export const ingresar = async(req, res) => {
         .input('numero', sql.NVarChar, direccion.numero)
         .input('depto', sql.NVarChar, direccion.departamento || null)
         .input('bloque', sql.NVarChar, direccion.bloque || null)
+        .input('latitud', sql.NVarChar, coordenadas.latitude || null)
+        .input('longitud', sql.NVarChar, coordenadas.longitude || null)
         .input('zona_id', sql.Int, direccion.zona_id)
         .execute('InsertDireccion')
         .then((result) => {
@@ -173,9 +167,6 @@ export const ingresar = async(req, res) => {
 /**
  * ACTUALIZAR un cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
- * El objeto debe contener los campos de
- * { dni: nvarchar(30), dv: nvarchar(1), email: nvarchar(30), nombre_completo: nvarchar(50),
- *   razon_social: nvarchar(30), telefono: int, empresa: bit }
  */
 export const actualizar = async(req, res) => {
 
@@ -184,23 +175,21 @@ export const actualizar = async(req, res) => {
 
     const cliente = req.body.cliente;
     const direccion = req.body.direccion;
+    const coordenadas = await obtenerCoordenadas(direccion);
+    const clienteBD = await actualizarCliente(pool, cliente);
 
-    await pool.request()
-        .input('dni', sql.NVarChar, cliente.dni)
-        .input('dv', sql.NVarChar, cliente.dv)
-        .input('email', sql.NVarChar, cliente.email)
-        .input('nombre', sql.NVarChar, cliente.nombre_completo)
-        .input('razon_social', sql.NVarChar, cliente.razon_social || null)
-        .input('telefono', sql.Int, cliente.telefono)
-        .input('empresa', sql.NVarChar, cliente.empresa)
-        .input('id', sql.Int, cliente.cliente_id)
-        .execute('UpdateCliente')
-        .catch((err) => checkError(err, res));
+    if (clienteBD.message) {
+        return checkError(clienteBD, res);
+    } else if (coordenadas.message) {
+        return checkError(coordenadas, res);
+    }
 
     await pool.request()
         .input('cliente_id', sql.Int, cliente.cliente_id)
         .input('calle', sql.NVarChar, direccion.calle)
         .input('numero', sql.NVarChar, direccion.numero)
+        .input('latitud', sql.NVarChar, coordenadas.latitude || null)
+        .input('longitud', sql.NVarChar, coordenadas.longitude || null)
         .input('depto', sql.NVarChar, direccion.departamento || null)
         .input('bloque', sql.NVarChar, direccion.bloque || null)
         .input('zona_id', sql.Int, direccion.zona_id)
@@ -248,3 +237,71 @@ export const cambiarEstado = async(req, res) => {
     pool.close();
 
 };
+
+/****************************************************************************************************
+ *                                      FUNCIONES DEL CONTROLLER
+ ****************************************************************************************************/
+
+/**
+ * Esta función se encarga de obtener la longitud y latitud de una dirección
+ * @param {calle, numero, zona, comuna} direccion Dirección que se ingresa en el formulario
+ */
+async function obtenerCoordenadas(direccion) {
+    const options = { provider: 'openstreetmap' };
+    const geoCoder = nodeGeocoder(options);
+    const fullAddress = direccion.calle + ' ' + direccion.numero + ', ' + direccion.zona + ', ' + direccion.comuna;
+
+    try {
+        const result = await geoCoder.geocode(fullAddress);
+        return { latitude: result[0].latitude, longitude: result[0].longitude }
+    } catch (err) {
+        return err;
+    }
+}
+
+/**
+ * Esta función se encarga de ingresar al cliente en la base de datos
+ * @param {dni, dv, email, telefon, nombre_completo, razon_social, empresa} cliente
+ */
+async function ingresarCliente(pool, cliente) {
+
+    try {
+        const result = await pool.request()
+            .input('dni', sql.NVarChar, cliente.dni)
+            .input('dv', sql.NVarChar, cliente.dv)
+            .input('email', sql.NVarChar, cliente.email)
+            .input('nombre', sql.NVarChar, cliente.nombre_completo)
+            .input('razon_social', sql.NVarChar, cliente.razon_social || null)
+            .input('telefono', sql.Int, cliente.telefono)
+            .input('empresa', sql.NVarChar, cliente.empresa)
+            .execute('InsertCliente');
+
+        return result.recordset[0];
+    } catch (err) {
+        return err;
+    }
+}
+
+/**
+ * Esta función se encarga de actualizar al cliente en la base de datos
+ * @param {dni, dv, email, telefon, nombre_completo, razon_social, empresa} cliente
+ */
+async function actualizarCliente(pool, cliente) {
+
+    try {
+        const result = await pool.request()
+            .input('dni', sql.NVarChar, cliente.dni)
+            .input('dv', sql.NVarChar, cliente.dv)
+            .input('email', sql.NVarChar, cliente.email)
+            .input('nombre', sql.NVarChar, cliente.nombre_completo)
+            .input('razon_social', sql.NVarChar, cliente.razon_social || null)
+            .input('telefono', sql.Int, cliente.telefono)
+            .input('empresa', sql.NVarChar, cliente.empresa)
+            .input('id', sql.Int, cliente.cliente_id)
+            .execute('UpdateCliente')
+
+        return result.recordset[0];
+    } catch (err) {
+        return err;
+    }
+}

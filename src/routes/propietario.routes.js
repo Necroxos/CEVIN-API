@@ -21,7 +21,7 @@ router.get('/propietarios/activos', [verificaToken], propietarioController.obten
 router.post('/propietario', [verificaToken, verificaAdminRole], propietarioController.ingresar);
 
 // Se realiza una petición PUT para ACTUALIZAR un propietario
-router.put('/propietario', [verificaToken], propietarioController.actualizar);
+router.put('/propietario', [verificaToken, verificaAdminRole], propietarioController.actualizar);
 
 // Se realiza una petición PUT para DESACTIVAR o ACTIVAR un propietario
 router.put('/cambio-estado/propietario', [verificaToken, verificaAdminRole], propietarioController.cambiarEstado);

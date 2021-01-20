@@ -21,7 +21,7 @@ router.get('/gases/activos', [verificaToken], tipoController.obtenerActivos);
 router.post('/gas', [verificaToken, verificaAdminRole], tipoController.ingresar);
 
 // Se realiza una petición PUT para ACTUALIZAR un tipo de gas
-router.put('/gas', [verificaToken], tipoController.actualizar);
+router.put('/gas', [verificaToken, verificaAdminRole], tipoController.actualizar);
 
 // Se realiza una petición PUT para DESACTIVAR o ACTIVAR un tipo de gas
 router.put('/cambio-estado/gas', [verificaToken, verificaAdminRole], tipoController.cambiarEstado);
