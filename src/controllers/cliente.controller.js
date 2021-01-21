@@ -102,7 +102,7 @@ export const obtenerDirecciones = async(req, res) => {
 
     await pool.request()
         .input('cliente_id', sql.NVarChar, req.params.id)
-        .execute('SelectDirecciones')
+        .execute('SelectDireccionesCliente')
         .then((result) => {
             if (result.recordset[0]) res.json({
                 ok: true,
@@ -113,6 +113,31 @@ export const obtenerDirecciones = async(req, res) => {
         })
         .catch((err) => checkError(err, res));
 
+
+    pool.close();
+
+};
+
+/**
+ * OBTENER TODOS los activos involucrados en una [venta]
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
+ */
+export const obtenerCilindrosComprados = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    await pool.request()
+        .input('cliente_id', sql.NVarChar, req.params.id)
+        .execute('SelectCilindrosComprados')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset
+            });
+        })
+        .catch((err) => checkError(err, res));
 
     pool.close();
 

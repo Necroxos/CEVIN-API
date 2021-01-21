@@ -17,6 +17,9 @@ router.get('/venta/:code', [verificaToken], ventaController.obtenerUno);
 // Se realiza la petición GET para OBTENER TODAS las ventas en la base de datos
 router.get('/ventas', [verificaToken], ventaController.obtenerTodos);
 
+// Se realiza la petición GET para OBTENER TODOS los tipos de atrasps en la base de datos
+router.get('/demoras', [verificaToken], ventaController.obtenerDemoras);
+
 // Se realiza la petición GET para OBTENER TODOS los activos disponibles
 router.get('/ventas/cilindros', [verificaToken], ventaController.obtenerCilindrosParaVenta);
 
