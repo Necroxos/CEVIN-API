@@ -92,8 +92,6 @@ export const actualizar = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
-    console.log(req.body);
-
     await pool.request()
         .input('descripcion', sql.NVarChar, req.body.descripcion)
         .input('id', sql.Int, req.body.id)

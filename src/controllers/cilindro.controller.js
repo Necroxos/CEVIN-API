@@ -73,7 +73,6 @@ export const ingresar = async(req, res) => {
     if (!pool) return errorBD(res);
 
     let body = _.pick(req.body, ['metros_cubicos', 'codigo_activo', 'tipo_id', 'fecha_mantencion', 'desc_mantenimiento']);
-    console.log(body);
 
     await pool.request()
         .input('tipo_id', sql.Int, req.body.tipo_id)
