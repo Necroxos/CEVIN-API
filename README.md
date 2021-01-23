@@ -7,4 +7,6 @@
 - Entablamos conexión a SQL Server mediante el módulo MSSQL
 
 ## Ejecutar
-- Para ejecutar la API usar `npm run build` y luego `npm start`
+- Ejecutar babel para imports con `npm run build`
+- Para ejecutar la API con nodemon usar `npm run dev`
+- Para ejecutar la API con node usar `npm start`
