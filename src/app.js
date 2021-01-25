@@ -17,6 +17,7 @@ import ClienteRoutes from './routes/cliente.routes';
 import UsuarioRoutes from './routes/usuario.routes';
 import CilindroRoutes from './routes/cilindro.routes';
 import PropietarioRoutes from './routes/propietario.routes';
+import CilindroVentaRoutes from './routes/cilindro-venta.routes';
 
 // Inicializaciones
 const app = express();
@@ -54,5 +55,6 @@ app.use(ClienteRoutes);
 app.use(UsuarioRoutes);
 app.use(CilindroRoutes);
 app.use(PropietarioRoutes);
+app.use(CilindroVentaRoutes);
 
 export default app;

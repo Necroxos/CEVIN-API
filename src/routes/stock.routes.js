@@ -1,7 +1,7 @@
 // Controlador con la lógica
 import * as stockController from '../controllers/stock.controller'
 // Middleware para verificaciones
-import { verificaToken, verificaAdminRole } from '../middleware/autenticacion';
+import { verificaToken } from '../middleware/autenticacion';
 // Inicializa router
 import { Router } from 'express';
 const router = Router();
@@ -19,5 +19,11 @@ router.get('/stock/vacios', [verificaToken], stockController.obtenerVacios);
 
 // Se realiza una petición GET para OBTENER cilindros en arriendo
 router.get('/stock/arrendados', [verificaToken], stockController.obtenerArrendados);
+
+// Se realiza una petición GET para OBTENER cilindros en rotación en Santiago
+router.get('/stock/rotados', [verificaToken], stockController.obtenerRotados);
+
+// Se realiza una petición POST para OBTENER mandar cilindros a santiago (Air Liquide)
+router.post('/rotacion/cilindros', [verificaToken], stockController.rotacionCilindros);
 
 export default router;
