@@ -141,6 +141,35 @@ export const actualizar = async(req, res) => {
 
 };
 
+/* ACTUALIZAR la contraseña de un usuario
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
+ */
+export const cambiarPass = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    console.log(req.body);
+    await pool.request()
+        .input('password', sql.NVarChar, bycrpt.hashSync(req.body.password, 10))
+        .input('id', sql.Int, req.body.usuario_id)
+        .execute('UpdatePassword')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Actualización correcta',
+                response: {
+                    message: 'Contraseña cambiada',
+                    usuario_id: req.body.usuario_id
+                }
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
 /**
  * DESACTIVAR o ACTIVAR un usuario de la base de datos
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
