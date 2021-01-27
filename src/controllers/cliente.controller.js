@@ -154,14 +154,12 @@ export const ingresar = async(req, res) => {
 
     const cliente = req.body.cliente;
     const direccion = req.body.direccion;
-    const coordenadas = await obtenerCoordenadas(direccion);
-    const clienteBD = await ingresarCliente(pool, cliente);
 
-    if (clienteBD.message) {
-        return checkError(clienteBD, res);
-    } else if (coordenadas.message) {
-        return checkError(coordenadas, res);
-    }
+    const coordenadas = await obtenerCoordenadas(direccion);
+    if (coordenadas.message) { return checkError(coordenadas, res); }
+
+    const clienteBD = await ingresarCliente(pool, cliente);
+    if (clienteBD.message) { return checkError(clienteBD, res); }
 
     await pool.request()
         .input('cliente_id', sql.Int, clienteBD.id)
@@ -200,14 +198,12 @@ export const actualizar = async(req, res) => {
 
     const cliente = req.body.cliente;
     const direccion = req.body.direccion;
-    const coordenadas = await obtenerCoordenadas(direccion);
-    const clienteBD = await actualizarCliente(pool, cliente);
 
-    if (clienteBD.message) {
-        return checkError(clienteBD, res);
-    } else if (coordenadas.message) {
-        return checkError(coordenadas, res);
-    }
+    const coordenadas = await obtenerCoordenadas(direccion);
+    if (coordenadas.message) { return checkError(coordenadas, res); }
+
+    const clienteBD = await actualizarCliente(pool, cliente);
+    if (clienteBD.message) { return checkError(clienteBD, res); }
 
     await pool.request()
         .input('cliente_id', sql.Int, cliente.cliente_id)
@@ -274,13 +270,23 @@ export const cambiarEstado = async(req, res) => {
 async function obtenerCoordenadas(direccion) {
     const options = { provider: 'openstreetmap' };
     const geoCoder = nodeGeocoder(options);
-    const fullAddress = direccion.calle + ' ' + direccion.numero + ', ' + direccion.zona + ', ' + direccion.comuna;
+    const error = { ok: false, response: 'Error en dirección', code: 'geocode', err: { message: 'No se pudo obtener coordenadas' } };
+    let fullAddress = '';
+    if (direccion.zona.toLowerCase() == 'otros') {
+        fullAddress = direccion.calle + ' ' + direccion.numero + ', ' + direccion.comuna;
+    } else {
+        fullAddress = direccion.calle + ' ' + direccion.numero + ', ' + direccion.zona + ', ' + direccion.comuna;
+    }
 
     try {
         const result = await geoCoder.geocode(fullAddress);
-        return { latitude: result[0].latitude, longitude: result[0].longitude }
+        if (result[0].latitude) {
+            return { latitude: result[0].latitude, longitude: result[0].longitude }
+        } else {
+            return { latitude: null, longitude: null };
+        }
     } catch (err) {
-        return err;
+        return error;
     }
 }
 
