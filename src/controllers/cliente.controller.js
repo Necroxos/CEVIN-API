@@ -1,7 +1,5 @@
 // Conexiones a la base de datos y algunos estandar de errores
 const { connect, sql, checkError, errorBD, sinResultados } = require('../database/cnxn');
-// Coordenadas
-const nodeGeocoder = require('node-geocoder');
 
 /**********************************************************************************************************************
  * OBSERVACIONES:                                                                                                    *
@@ -155,9 +153,6 @@ export const ingresar = async(req, res) => {
     const cliente = req.body.cliente;
     const direccion = req.body.direccion;
 
-    const coordenadas = await obtenerCoordenadas(direccion);
-    if (coordenadas.message) { return checkError(coordenadas, res); }
-
     const clienteBD = await ingresarCliente(pool, cliente);
     if (clienteBD.message) { return checkError(clienteBD, res); }
 
@@ -167,8 +162,8 @@ export const ingresar = async(req, res) => {
         .input('numero', sql.NVarChar, direccion.numero)
         .input('depto', sql.NVarChar, direccion.departamento || null)
         .input('bloque', sql.NVarChar, direccion.bloque || null)
-        .input('latitud', sql.NVarChar, coordenadas.latitude || null)
-        .input('longitud', sql.NVarChar, coordenadas.longitude || null)
+        .input('latitud', sql.NVarChar, direccion.latitud || null)
+        .input('longitud', sql.NVarChar, direccion.longitud || null)
         .input('zona_id', sql.Int, direccion.zona_id)
         .execute('InsertDireccion')
         .then((result) => {
@@ -199,9 +194,6 @@ export const actualizar = async(req, res) => {
     const cliente = req.body.cliente;
     const direccion = req.body.direccion;
 
-    const coordenadas = await obtenerCoordenadas(direccion);
-    if (coordenadas.message) { return checkError(coordenadas, res); }
-
     const clienteBD = await actualizarCliente(pool, cliente);
     if (clienteBD.message) { return checkError(clienteBD, res); }
 
@@ -209,8 +201,8 @@ export const actualizar = async(req, res) => {
         .input('cliente_id', sql.Int, cliente.cliente_id)
         .input('calle', sql.NVarChar, direccion.calle)
         .input('numero', sql.NVarChar, direccion.numero)
-        .input('latitud', sql.NVarChar, coordenadas.latitude || null)
-        .input('longitud', sql.NVarChar, coordenadas.longitude || null)
+        .input('latitud', sql.NVarChar, direccion.latitud || null)
+        .input('longitud', sql.NVarChar, direccion.longitud || null)
         .input('depto', sql.NVarChar, direccion.departamento || null)
         .input('bloque', sql.NVarChar, direccion.bloque || null)
         .input('zona_id', sql.Int, direccion.zona_id)
@@ -262,33 +254,6 @@ export const cambiarEstado = async(req, res) => {
 /****************************************************************************************************
  *                                      FUNCIONES DEL CONTROLLER
  ****************************************************************************************************/
-
-/**
- * Esta función se encarga de obtener la longitud y latitud de una dirección
- * @param {calle, numero, zona, comuna} direccion Dirección que se ingresa en el formulario
- */
-async function obtenerCoordenadas(direccion) {
-    const options = { provider: 'openstreetmap' };
-    const geoCoder = nodeGeocoder(options);
-    const error = { ok: false, response: 'Error en dirección', code: 'geocode', err: { message: 'No se pudo obtener coordenadas' } };
-    let fullAddress = '';
-    if (direccion.zona.toLowerCase() == 'otros') {
-        fullAddress = direccion.calle + ' ' + direccion.numero + ', ' + direccion.comuna;
-    } else {
-        fullAddress = direccion.calle + ' ' + direccion.numero + ', ' + direccion.zona + ', ' + direccion.comuna;
-    }
-
-    try {
-        const result = await geoCoder.geocode(fullAddress);
-        if (result[0].latitude) {
-            return { latitude: result[0].latitude, longitude: result[0].longitude }
-        } else {
-            return { latitude: null, longitude: null };
-        }
-    } catch (err) {
-        return error;
-    }
-}
 
 /**
  * Esta función se encarga de ingresar al cliente en la base de datos
