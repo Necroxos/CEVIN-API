@@ -26,6 +26,12 @@ process.env.SEED = process.env.SEED || 'secret-desarrollo';
 process.env.PORT = process.env.PORT || 3000;
 
 /**
+ * Correo de la API
+ */
+process.env.EMAIL = process.env.EMAIL;
+process.env.EMAIL_PASS = process.env.EMAIL_PASS;
+
+/**
  * Base de Datos
  */
 

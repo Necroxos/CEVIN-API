@@ -2,6 +2,8 @@
 const { connect, sql, checkError, errorBD, sinResultados } = require('../database/cnxn');
 // Módulo para encriptar la contraseña
 const bycrpt = require('bcrypt');
+// Correo de confirmación
+import { enviarCorreo } from './email.controller';
 
 /**********************************************************************************************************************
  * OBSERVACIONES:                                                                                                    *
@@ -149,7 +151,6 @@ export const cambiarPass = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
-    console.log(req.body);
     await pool.request()
         .input('password', sql.NVarChar, bycrpt.hashSync(req.body.password, 10))
         .input('id', sql.Int, req.body.usuario_id)
@@ -163,6 +164,39 @@ export const cambiarPass = async(req, res) => {
                     usuario_id: req.body.usuario_id
                 }
             });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
+/* ACTUALIZAR la contraseña de un usuario a una provisoria
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
+ */
+export const restablecerPass = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    const pass = randomString();
+    const email = req.body.email;
+
+    await pool.request()
+        .input('password', sql.NVarChar, bycrpt.hashSync(pass, 10))
+        .input('email', sql.NVarChar, email)
+        .execute('ResetPassword')
+        .then((result) => {
+            if (result) {
+                enviarCorreo(email, pass);
+                res.json({
+                    ok: true,
+                    message: 'Actualización correcta',
+                    response: {
+                        message: 'Contraseña cambiada'
+                    }
+                });
+            }
         })
         .catch((err) => checkError(err, res));
 
@@ -198,3 +232,20 @@ export const cambiarEstado = async(req, res) => {
     pool.close();
 
 };
+
+/****************************************************************************************************
+ *                                      FUNCIONES DEL CONTROLLER
+ ****************************************************************************************************/
+
+/**
+ * Función para generar un string random
+ */
+function randomString() {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < 12; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}

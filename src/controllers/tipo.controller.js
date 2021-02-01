@@ -68,7 +68,7 @@ export const ingresar = async(req, res) => {
     let body = _.pick(req.body, ['descripcion']);
 
     await pool.request()
-        .input('descripcion', sql.NVarChar, req.body.descripcion)
+        .input('descripcion', sql.NVarChar, body.descripcion)
         .execute('InsertTipoGas')
         .then((result) => {
             if (result) res.json({

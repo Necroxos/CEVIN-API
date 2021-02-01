@@ -26,6 +26,9 @@ router.put('/usuario', [verificaToken, verificaAdminRole], usuarioController.act
 // Se realiza una petición PUT para ACTUALIZAR la contraseña de un usuario
 router.put('/usuario/password', [verificaToken], usuarioController.cambiarPass);
 
+// Se realiza una petición PUT para ACTUALIZAR la contraseña de un usuario
+router.post('/restablecer-password', usuarioController.restablecerPass);
+
 // Se realiza una petición PUT para DESACTIVAR o ACTIVAR un usuario de la base de datos
 router.put('/cambio-estado/usuario', [verificaToken, verificaAdminRole], usuarioController.cambiarEstado);
 
