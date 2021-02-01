@@ -128,3 +128,28 @@ export const obtenerDemoras = async(req, res) => {
     pool.close();
 
 };
+
+/**
+ * OBTENER el cliente que tiene posesión del cilindro
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
+ */
+export const obtenerCliente = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    await pool.request()
+        .input('cilindro_id', sql.NVarChar, req.params.id)
+        .execute('SelectClientePorCilindro')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset[0]
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
