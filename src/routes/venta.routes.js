@@ -17,8 +17,11 @@ router.get('/venta/:code', [verificaToken], ventaController.obtenerUno);
 // Se realiza la petición GET para OBTENER TODAS las ventas en la base de datos
 router.get('/ventas', [verificaToken], ventaController.obtenerTodos);
 
-// Se realiza la petición GET para OBTENER TODOS los tipos de atrasps en la base de datos
+// Se realiza la petición GET para OBTENER TODOS los tipos de atrasos en la base de datos
 router.get('/demoras', [verificaToken], ventaController.obtenerDemoras);
+
+// Se realiza la petición GET para OBTENER TODOS los clientes activos
+router.get('/clientes/venta', [verificaToken], ventaController.obtenerClientes);
 
 // Se realiza una petición POST para INGRESAR una nueva venta
 router.post('/venta', [verificaToken], ventaController.ingresar);

@@ -74,7 +74,7 @@ export const ingresar = async(req, res) => {
             if (result) res.json({
                 ok: true,
                 message: 'Inserción correcta',
-                response: req.body.descripcion
+                response: result.recordset[0]
             });
         })
         .catch((err) => checkError(err, res));

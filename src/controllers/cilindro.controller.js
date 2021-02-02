@@ -72,24 +72,26 @@ export const ingresar = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
-    let body = _.pick(req.body, ['metros_cubicos', 'codigo_activo', 'tipo_id', 'fecha_mantencion', 'desc_mantenimiento']);
+    let body = _.pick(req.body, ['metros_cubicos', 'codigo_activo', 'tipo_id', 'fecha_mantencion', 'desc_mantenimiento', 'propietario_id']);
+
+    console.log(body);
 
     await pool.request()
-        .input('tipo_id', sql.Int, req.body.tipo_id)
-        .input('capacidad', sql.Int, req.body.metros_cubicos)
-        .input('codigo', sql.NVarChar, req.body.codigo_activo)
-        .input('fecha_mantencion', sql.NVarChar, req.body.fecha_mantencion)
-        .input('desc_mantencion', sql.NVarChar, req.body.desc_mantenimiento || null)
-        .input('propietario_id', sql.NVarChar, req.body.propietario_id)
+        .input('tipo_id', sql.Int, body.tipo_id)
+        .input('capacidad', sql.Int, body.metros_cubicos)
+        .input('codigo', sql.NVarChar, body.codigo_activo)
+        .input('fecha_mantencion', sql.NVarChar, body.fecha_mantencion || null)
+        .input('desc_mantencion', sql.NVarChar, body.desc_mantenimiento || null)
+        .input('propietario_id', sql.Int, body.propietario_id)
         .execute('InsertCilindro')
         .then((result) => {
             if (result) res.json({
                 ok: true,
                 message: 'Inserción correcta',
                 response: {
-                    capacidad: req.body.metros_cubicos + ' metros cúbicos',
-                    codigo: req.body.codigo,
-                    ult_mantenimiento: req.body.fecha_mantencion
+                    capacidad: body.metros_cubicos + ' metros cúbicos',
+                    codigo: body.codigo_activo,
+                    ult_mantenimiento: body.fecha_mantencion
                 }
             });
         })

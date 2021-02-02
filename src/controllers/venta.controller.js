@@ -192,6 +192,10 @@ export const cambiarEstado = async(req, res) => {
 
 };
 
+/**********************************************************************************************************************
+ *                                                 INFORMACIÓN PARA FORMULARIOS                                      *
+ *********************************************************************************************************************/
+
 /**
  * OBTENER TODOS los tipos de demora/atrasos
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
@@ -204,6 +208,30 @@ export const obtenerDemoras = async(req, res) => {
     /** Stored Procedure: Return */
     await pool.request()
         .execute('SelectDemoras')
+        .then((result) => {
+            if (result) res.json({
+                ok: true,
+                message: 'Petición finalizada',
+                response: result.recordset
+            });
+        })
+        .catch((err) => checkError(err, res));
+
+    pool.close();
+
+};
+
+/**
+ * OBTENER TODOS los clientes de [Cliente.Info]
+ * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
+ */
+export const obtenerClientes = async(req, res) => {
+
+    let pool = await connect();
+    if (!pool) return errorBD(res);
+
+    await pool.request()
+        .execute('SelectClientesVenta')
         .then((result) => {
             if (result) res.json({
                 ok: true,
