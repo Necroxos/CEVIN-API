@@ -17,4 +17,7 @@ router.post('/costo', [verificaToken, verificaAdminRole], costoController.ingres
 // Se realiza una petición PUT para ACTUALIZAR costo de un tipo de gas
 router.put('/costo', [verificaToken, verificaAdminRole], costoController.actualizar);
 
+// Se realiza una petición POST para INGRESAR un nuevo costo a un tipo de gas
+router.post('/costo/total', [verificaToken, verificaAdminRole], costoController.ingresarTotal);
+
 export default router;
