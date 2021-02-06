@@ -5,9 +5,8 @@
     "main": "index.js",
     "scripts": {
         "start": "node dist/index.js",
-        "clean": "rd /s /q dist",
         "dev": "nodemon --exec npx babel-node src/index.js",
-        "build": "npm run clean && babel src --out-dir dist"
+        "build": "babel src --out-dir dist"
     },
     "keywords": [
         "Cevin"
