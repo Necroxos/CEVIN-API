@@ -120,7 +120,7 @@ export const actualizar = async(req, res) => {
 
     let cilindroObj = new Array();
     const cilindros = req.body.cobros;
-    const venta = _.pick(req.body, ['codigo', 'cliente_id', 'venta_id', 'monto']);
+    const venta = _.pick(req.body, ['codigo', 'cliente_id', 'venta_id', 'monto', 'fecha_entrega']);
 
     const ventaDB = await actualizarVenta(pool, venta);
     const checkLista = await checkCilindros(cilindros);
@@ -136,7 +136,7 @@ export const actualizar = async(req, res) => {
             .input('venta_id', sql.Int, ventaDB.id)
             .input('cilindro_id', sql.Int, cilindros[i].cilindro_id)
             .input('cobro', sql.Int, cilindros[i].cobro)
-            .input('fecha_entrega', sql.NVarChar, req.body.fecha_entrega)
+            .input('fecha_entrega', sql.NVarChar, venta.fecha_entrega)
             .execute('InsertCilindroVenta')
             .then((result) => {
                 if (result.recordset) cilindroObj.push(result.recordset[0]);
@@ -280,10 +280,11 @@ async function ingresarVenta(pool, venta, usuario_id) {
 
     try {
         const result = await pool.request()
-            .input('codigo', sql.NVarChar, venta.codigo)
             .input('cliente_id', sql.NVarChar, venta.cliente_id)
-            .input('monto', sql.NVarChar, venta.monto)
+            .input('fecha', sql.NVarChar, venta.fecha_entrega)
             .input('usuario_id', sql.NVarChar, usuario_id)
+            .input('codigo', sql.NVarChar, venta.codigo)
+            .input('monto', sql.NVarChar, venta.monto)
             .execute('InsertVenta')
 
         return result.recordset[0];
@@ -300,10 +301,11 @@ async function actualizarVenta(pool, venta) {
 
     try {
         const result = await pool.request()
-            .input('codigo', sql.NVarChar, venta.codigo)
             .input('cliente_id', sql.NVarChar, venta.cliente_id)
-            .input('monto', sql.NVarChar, venta.monto)
+            .input('fecha', sql.NVarChar, venta.fecha_entrega)
             .input('venta_id', sql.NVarChar, venta.venta_id)
+            .input('codigo', sql.NVarChar, venta.codigo)
+            .input('monto', sql.NVarChar, venta.monto)
             .execute('UpdateVenta')
 
         return result.recordset[0];

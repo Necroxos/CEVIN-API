@@ -115,8 +115,6 @@ export const rotacionCilindros = async(req, res) => {
     const cilindros = req.body;
     let cilindroDB;
 
-    console.log(cilindros);
-
     for (let i = 0; i < cilindros.length; i++) {
         await pool.request()
             .input('id', sql.Int, cilindros[i].cilindro_id)
