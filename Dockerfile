@@ -14,4 +14,4 @@ CMD ["npm", "start"]
 
 # USE
 # docker build -t cevin-api .
-# docker run --name cevin-api -d -p 5106:3000 cevin-api
+# docker run --name cevin-api --restart unless-stopped -d -p 5107:3000 cevin-api
