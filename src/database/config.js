@@ -17,7 +17,7 @@ process.env.CADUCIDAD_TOKEN = '1d';
  * Secret para generar Tokens
  */
 
-process.env.SEED = process.env.SEED || 'secret-desarrollo';
+process.env.SEED = process.env.SEED || 'secret-dev';
 
 /**
  * Puerto API

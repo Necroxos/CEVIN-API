@@ -230,6 +230,12 @@ export const obtenerClientes = async(req, res) => {
     let pool = await connect();
     if (!pool) return errorBD(res);
 
+    if (process.env.NODE_ENV == 'prod') {
+        await pool.request()
+            .execute('CargarClientesCevin')
+            .catch((err) => checkError(err, res));
+    }
+
     await pool.request()
         .execute('SelectClientesVenta')
         .then((result) => {
