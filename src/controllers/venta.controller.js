@@ -13,7 +13,7 @@ const _ = require('underscore');
  * OBTENER UN [Venta.Info] en base a su [codigo]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
-export const obtenerUno = async(req, res) => {
+export const obtenerUno = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -40,7 +40,7 @@ export const obtenerUno = async(req, res) => {
  * OBTENER TODOS las ventas de [Venta.Info]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
-export const obtenerTodos = async(req, res) => {
+export const obtenerTodos = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -66,7 +66,7 @@ export const obtenerTodos = async(req, res) => {
  * El objeto debe contener los campos de
  * { codigo: nvarchar(255), cliente_id: int, fecha_entrega: date, cilindros: string para split }
  */
-export const ingresar = async(req, res) => {
+export const ingresar = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -113,7 +113,7 @@ export const ingresar = async(req, res) => {
  * ACTUALIZAR una venta
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
  */
-export const actualizar = async(req, res) => {
+export const actualizar = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -159,7 +159,7 @@ export const actualizar = async(req, res) => {
  * DESACTIVAR o ACTIVAR una venta de la base de datos
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
  */
-export const cambiarEstado = async(req, res) => {
+export const cambiarEstado = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -200,7 +200,7 @@ export const cambiarEstado = async(req, res) => {
  * OBTENER TODOS los tipos de demora/atrasos
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
  */
-export const obtenerDemoras = async(req, res) => {
+export const obtenerDemoras = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -225,7 +225,7 @@ export const obtenerDemoras = async(req, res) => {
  * OBTENER TODOS los clientes de [Cliente.Info]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
-export const obtenerClientes = async(req, res) => {
+export const obtenerClientes = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);

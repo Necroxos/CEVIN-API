@@ -11,7 +11,7 @@ const { connect, sql, checkError, errorBD, sinResultados } = require('../databas
  * OBTENER UN [Cliente.Info] en base a su [rut]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
-export const obtenerUno = async(req, res) => {
+export const obtenerUno = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -42,10 +42,16 @@ export const obtenerUno = async(req, res) => {
  * OBTENER TODOS los clientes de [Cliente.Info]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
-export const obtenerTodos = async(req, res) => {
+export const obtenerTodos = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
+
+    if (process.env.NODE_ENV == 'prod') {
+        await pool.request()
+            .execute('CargarClientesCevin')
+            .catch((err) => checkError(err, res));
+    }
 
     await pool.request()
         .execute('SelectClientes')
@@ -66,7 +72,7 @@ export const obtenerTodos = async(req, res) => {
  * OBTENER UN [Cliente.Direccion] en base a su [id]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
-export const obtenerDireccion = async(req, res) => {
+export const obtenerDireccion = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -93,7 +99,7 @@ export const obtenerDireccion = async(req, res) => {
  * OBTENER TODO [Cliente.Direccion] en base al [rut] del cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
-export const obtenerDirecciones = async(req, res) => {
+export const obtenerDirecciones = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -120,7 +126,7 @@ export const obtenerDirecciones = async(req, res) => {
  * OBTENER TODOS los activos involucrados en una [venta]
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto de la base de datos } }
  */
-export const obtenerCilindrosComprados = async(req, res) => {
+export const obtenerCilindrosComprados = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -145,7 +151,7 @@ export const obtenerCilindrosComprados = async(req, res) => {
  * INGRESAR un nuevo cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto ingresado } }
  */
-export const ingresar = async(req, res) => {
+export const ingresar = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -186,7 +192,7 @@ export const ingresar = async(req, res) => {
  * ACTUALIZAR un cliente
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: objeto actualizado } }
  */
-export const actualizar = async(req, res) => {
+export const actualizar = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
@@ -227,7 +233,7 @@ export const actualizar = async(req, res) => {
  * DESACTIVAR o ACTIVAR un cliente de la base de datos
  * Si todo sale bien retorna un objeto con { ok: boolean, message: texto, { response: estado del objeto } }
  */
-export const cambiarEstado = async(req, res) => {
+export const cambiarEstado = async (req, res) => {
 
     let pool = await connect();
     if (!pool) return errorBD(res);
